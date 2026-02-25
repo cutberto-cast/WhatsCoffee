@@ -1,26 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Paleta CafeOrder inspirada en el diseño UX */
+  --color-cafe-50: #FFF9F0;
+  --color-cafe-100: #FFF2E0;
+  --color-cafe-200: #FFE4C0;
+  --color-cafe-300: #E8C07D;
+  --color-cafe-400: #D4A76A;
+  --color-cafe-500: #C68B59;
+  --color-cafe-600: #A87243;
+  --color-cafe-700: #8B5E35;
+  --color-cafe-800: #4A3728;
+  --color-cafe-900: #3E2723;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-crema-50: #FFFDF9;
+  --color-crema-100: #FFF8EE;
+  --color-crema-200: #FFF0DD;
+  --color-crema-300: #FFE4C4;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --font-family-sans: 'Outfit', sans-serif;
+
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-up: slide-up 0.4s ease-out;
+  --animate-scale-in: scale-in 0.3s ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 
+/* Reset y estilos base */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-cafe-300) transparent;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Outfit', sans-serif;
+  background-color: #FFFFFF;
+  color: var(--color-cafe-800);
+}
+
+/* Ocultar scrollbar en categorías horizontales */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
