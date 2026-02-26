@@ -1,44 +1,57 @@
 'use client';
 
-import type { Categoria } from '@/types';
+import type { Categoria, MacroCategoria } from '@/types';
+import { MACRO_CATEGORIAS_CONFIG } from '@/types';
 
 interface CategoriasNavProps {
     categorias: Categoria[];
-    categoriaActiva: string | null;
-    onSeleccionar: (categoriaId: string | null) => void;
+    macroActiva: MacroCategoria | null;
+    onSeleccionar: (macro: MacroCategoria | null) => void;
 }
 
 export function CategoriasNav({
     categorias,
-    categoriaActiva,
+    macroActiva,
     onSeleccionar,
 }: CategoriasNavProps) {
+    // Solo mostrar macros que tienen al menos una categoría en BD
+    const macrosDisponibles = MACRO_CATEGORIAS_CONFIG.filter(
+        macro => categorias.some(c => c.macro_categoria === macro.id)
+    );
+
     return (
         <nav className="w-full" aria-label="Categorías del menú">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 py-1 px-0.5">
-                {/* Botón "Todos" */}
+            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+                {/* Botón Todos */}
                 <button
                     onClick={() => onSeleccionar(null)}
-                    className={`h-12 p-2 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all duration-200 ${categoriaActiva === null
-                        ? 'bg-[var(--color-primario)] text-white shadow-lg'
-                        : 'bg-white text-cafe-700 hover:bg-cafe-100 border border-cafe-200'
+                    className={`flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl border-2 transition-all ${macroActiva === null
+                        ? 'border-[var(--color-primario)] bg-[var(--color-primario)] text-white'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-cafe-300'
                         }`}
-                    aria-pressed={categoriaActiva === null}
+                    aria-pressed={macroActiva === null}
                 >
-                    Todos
+                    <span className="text-lg">🏠</span>
+                    <span className="text-[10px] font-semibold leading-tight text-center">
+                        Todos
+                    </span>
                 </button>
 
-                {categorias.map((categoria) => (
+                {/* Botones de macro-categorías */}
+                {macrosDisponibles.map((macro) => (
                     <button
-                        key={categoria.id}
-                        onClick={() => onSeleccionar(categoria.id)}
-                        className={`h-12 p-2 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all duration-200 text-center ${categoriaActiva === categoria.id
-                            ? 'bg-[var(--color-primario)] text-white shadow-lg'
-                            : 'bg-white text-cafe-700 hover:bg-cafe-100 border border-cafe-200'
+                        key={macro.id}
+                        onClick={() => onSeleccionar(macro.id)}
+                        className={`flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl border-2 transition-all ${macroActiva === macro.id
+                            ? 'border-[var(--color-primario)] bg-[var(--color-primario)] text-white'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-cafe-300'
                             }`}
-                        aria-pressed={categoriaActiva === categoria.id}
+                        aria-pressed={macroActiva === macro.id}
                     >
-                        {categoria.nombre}
+                        <span className="text-lg">{macro.icono}</span>
+                        <span className="text-[10px] font-semibold leading-tight text-center">
+                            {macro.nombre}
+                        </span>
                     </button>
                 ))}
             </div>

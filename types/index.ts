@@ -1,11 +1,27 @@
 // Tipos del dominio Nube Alta Cafe
 
+export type MacroCategoria = 'dulces' | 'bebidas' | 'salados' | 'combos';
+
+export interface MacroCategoriaConfig {
+    id: MacroCategoria;
+    nombre: string;
+    icono: string;
+}
+
+export const MACRO_CATEGORIAS_CONFIG: MacroCategoriaConfig[] = [
+    { id: 'dulces', nombre: 'Dulces', icono: '🍰' },
+    { id: 'bebidas', nombre: 'Bebidas', icono: '🥤' },
+    { id: 'salados', nombre: 'Salados', icono: '🍔' },
+    { id: 'combos', nombre: 'Combos', icono: '🎁' },
+];
+
 export interface Categoria {
     id: string;
     nombre: string;
     icono?: string | null;
     orden: number;
     creado_en: string;
+    macro_categoria: MacroCategoria;
 }
 
 export interface Producto {

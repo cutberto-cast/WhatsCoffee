@@ -13,7 +13,8 @@ import { CarritoVista } from '@/components/carrito/CarritoVista';
 import { CheckoutVista } from '@/components/carrito/CheckoutVista';
 import { createClient } from '@/lib/supabase/client';
 import { useCarrito } from '@/stores/carritoStore';
-import type { Producto, Categoria, Banner, Topping, CarritoItem } from '@/types';
+import type { Producto, Categoria, Banner, Topping, CarritoItem, MacroCategoria } from '@/types';
+import { MACRO_CATEGORIAS_CONFIG } from '@/types';
 import type { GrupoConVariantes, ProductoConToppings } from '@/types/variantes';
 
 type Vista = 'home' | 'carrito' | 'checkout';
@@ -32,7 +33,7 @@ const ORDEN_CATEGORIAS = [
 
 export default function HomePage() {
   const [vista, setVista] = useState<Vista>('home');
-  const [categoriaActiva, setCategoriaActiva] = useState<string | null>(null);
+  const [macroActiva, setMacroActiva] = useState<MacroCategoria | null>(null);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [productoDetalle, setProductoDetalle] = useState<Producto | null>(null);
   const [productoConfigurador, setProductoConfigurador] = useState<Producto | null>(null);
@@ -123,18 +124,27 @@ export default function HomePage() {
 
   const productosFiltrados = useMemo(() => {
     return productos.filter((producto) => {
-      const coincideCategoria =
-        categoriaActiva === null || producto.categoria_id === categoriaActiva;
+      // Filtro por macro-categoría
+      const categoriasEnMacro = categorias
+        .filter(c => c.macro_categoria === macroActiva)
+        .map(c => c.id);
+
+      const coincideMacro =
+        macroActiva === null ||
+        categoriasEnMacro.includes(producto.categoria_id);
+
       const coincideBusqueda =
         terminoBusqueda === '' ||
         producto.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
-        producto.descripcion.toLowerCase().includes(terminoBusqueda.toLowerCase());
-      const coincideBanner =
-        bannerFiltroActivo === null || (bannerProductos[bannerFiltroActivo] || []).includes(producto.id);
+        producto.descripcion?.toLowerCase().includes(terminoBusqueda.toLowerCase());
 
-      return coincideCategoria && coincideBusqueda && coincideBanner;
+      const coincideBanner =
+        bannerFiltroActivo === null ||
+        (bannerProductos[bannerFiltroActivo] || []).includes(producto.id);
+
+      return coincideMacro && coincideBusqueda && coincideBanner;
     });
-  }, [categoriaActiva, terminoBusqueda, productos, bannerFiltroActivo, bannerProductos]);
+  }, [macroActiva, terminoBusqueda, productos, bannerFiltroActivo, bannerProductos, categorias]);
 
   const productosEspecialidades = useMemo(() =>
     productos.filter(p =>
@@ -222,7 +232,7 @@ export default function HomePage() {
                 const vinculados = bannerProductos[bannerId];
                 if (vinculados && vinculados.length > 0) {
                   setBannerFiltroActivo(bannerId);
-                  setCategoriaActiva(null);
+                  setMacroActiva(null);
                   const categoriesSection = document.getElementById('categorias-section');
                   if (categoriesSection) categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
@@ -231,8 +241,8 @@ export default function HomePage() {
 
             <section id="categorias-section">
               <h2 className="text-lg font-bold text-cafe-900 mb-3">Categorías</h2>
-              <CategoriasNav categorias={categorias} categoriaActiva={categoriaActiva} onSeleccionar={(cat) => {
-                setCategoriaActiva(cat);
+              <CategoriasNav categorias={categorias} macroActiva={macroActiva} onSeleccionar={(macro) => {
+                setMacroActiva(macro);
                 setBannerFiltroActivo(null);
               }} />
             </section>
@@ -248,7 +258,7 @@ export default function HomePage() {
               )}
 
               {(() => {
-                const mostrarAgrupadoPorCategoria = categoriaActiva === null && bannerFiltroActivo === null && !terminoBusqueda;
+                const mostrarAgrupadoPorCategoria = macroActiva === null && bannerFiltroActivo === null && !terminoBusqueda;
 
                 if (mostrarAgrupadoPorCategoria) {
                   return (
@@ -301,7 +311,8 @@ export default function HomePage() {
                               {mostrarVerMas && (
                                 <button
                                   onClick={() => {
-                                    setCategoriaActiva(categoria.id);
+                                    const macro = categorias.find(c => c.id === categoria.id)?.macro_categoria;
+                                    if (macro) setMacroActiva(macro);
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                   }}
                                   className="text-sm font-semibold text-[var(--color-primario)] hover:underline"
@@ -329,24 +340,51 @@ export default function HomePage() {
                   );
                 }
 
+                // Vista con macro activa, banner, o búsqueda
+                const especialidadesFiltradas = macroActiva !== null
+                  ? productosFiltrados.filter(p => p.esta_disponible && (p.tiene_variantes || p.acepta_toppings))
+                  : [];
+                const simplesFiltrados = macroActiva !== null
+                  ? productosFiltrados.filter(p => p.esta_disponible && !p.tiene_variantes && !p.acepta_toppings)
+                  : productosFiltrados;
+
                 return (
                   <>
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-lg font-bold text-cafe-900">
                         {bannerFiltroActivo
                           ? 'Ofertas del banner'
-                          : categoriaActiva
-                            ? categorias.find((c) => c.id === categoriaActiva)?.nombre ?? 'Productos'
-                            : 'Todos los Productos'}
+                          : macroActiva
+                            ? MACRO_CATEGORIAS_CONFIG.find(m => m.id === macroActiva)?.nombre ?? 'Productos'
+                            : 'Todo el Menú'}
                       </h2>
                       <span className="text-xs text-cafe-400">{productosFiltrados.length} productos</span>
                     </div>
+
                     {productosFiltrados.length === 0 ? (
                       <div className="text-center py-12"><p className="text-cafe-400 text-sm">No se encontraron productos</p></div>
                     ) : (
-                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                        {productosFiltrados.map(renderProductoCard)}
-                      </div>
+                      <>
+                        {/* Especialidades de la macro activa */}
+                        {especialidadesFiltradas.length > 0 && (
+                          <section className="mb-6">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-base font-bold text-cafe-900">Especialidades</h3>
+                              <span className="text-xs text-cafe-400 bg-cafe-50 px-2 py-1 rounded-full font-medium">Arma tu pedido</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                              {especialidadesFiltradas.map(renderProductoCard)}
+                            </div>
+                          </section>
+                        )}
+
+                        {/* Simples en grid plano */}
+                        {simplesFiltrados.length > 0 && (
+                          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                            {simplesFiltrados.map(renderProductoCard)}
+                          </div>
+                        )}
+                      </>
                     )}
                   </>
                 );
