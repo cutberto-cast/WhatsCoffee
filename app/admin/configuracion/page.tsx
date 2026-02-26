@@ -74,58 +74,58 @@ export default function AdminConfiguracionPage() {
     return (
         <div className="space-y-6 animate-fade-in max-w-3xl">
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">Configuración del Negocio</h1>
-                <p className="text-gray-500 text-sm mt-1">Ajustes generales de la cafetería</p>
+                <h1 className="text-xl font-semibold text-[var(--color-texto-1)] tracking-tight">Configuración del Negocio</h1>
+                <p className="text-[13px] text-[var(--color-texto-3)] mt-1">Ajustes generales de la cafetería</p>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
                 <div className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre del Negocio *</label>
-                            <input type="text" value={form.nombre_negocio} onChange={(e) => setForm({ ...form, nombre_negocio: e.target.value })} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400 focus:bg-white transition-all shadow-sm" placeholder="Ej. El Buen Café" />
-                            <p className="text-gray-400 text-xs mt-2">Aparece en el menú y en el ticket.</p>
+                            <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-2">Nombre del Negocio *</label>
+                            <input type="text" value={form.nombre_negocio} onChange={(e) => setForm({ ...form, nombre_negocio: e.target.value })} className="w-full px-4 py-3 bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-[13px] text-[var(--color-texto-1)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all focus:bg-white transition-all shadow-sm" placeholder="Ej. El Buen Café" />
+                            <p className="text-[var(--color-texto-3)] text-xs mt-2">Aparece en el menú y en el ticket.</p>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp para Pedidos *</label>
+                            <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-2">WhatsApp para Pedidos *</label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">📱</span>
-                                <input type="text" value={form.telefono_whatsapp} onChange={(e) => setForm({ ...form, telefono_whatsapp: e.target.value.replace(/\D/g, '') })} className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400 focus:bg-white transition-all shadow-sm" placeholder="521234567890" />
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-texto-3)]">📱</span>
+                                <input type="text" value={form.telefono_whatsapp} onChange={(e) => setForm({ ...form, telefono_whatsapp: e.target.value.replace(/\D/g, '') })} className="w-full pl-11 pr-4 py-3 bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-[13px] text-[var(--color-texto-1)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all focus:bg-white transition-all shadow-sm" placeholder="521234567890" />
                             </div>
-                            <p className="text-gray-400 text-xs mt-2">Incluye código de país (+52 para México).</p>
+                            <p className="text-[var(--color-texto-3)] text-xs mt-2">Incluye código de país (+52 para México).</p>
                         </div>
                     </div>
 
-                    <div className="border-t border-gray-100 py-6">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">URL del Logo (Opcional)</label>
-                        <input type="url" value={form.logo_url} onChange={(e) => setForm({ ...form, logo_url: e.target.value })} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400 focus:bg-white transition-all shadow-sm" placeholder="https://ejemplo.com/logo.png" />
+                    <div className="border-t border-[var(--color-borde)] py-6">
+                        <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-2">URL del Logo (Opcional)</label>
+                        <input type="url" value={form.logo_url} onChange={(e) => setForm({ ...form, logo_url: e.target.value })} className="w-full px-4 py-3 bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-[13px] text-[var(--color-texto-1)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all focus:bg-white transition-all shadow-sm" placeholder="https://ejemplo.com/logo.png" />
                     </div>
 
-                    <div className="border-t border-gray-100 pt-6">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Color Primario de la Tienda</label>
+                    <div className="border-t border-[var(--color-borde)] pt-6">
+                        <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-2">Color Primario de la Tienda</label>
                         <div className="flex items-center gap-4">
-                            <div className="relative w-12 h-12 rounded-xl border-2 border-gray-200 overflow-hidden shadow-sm">
+                            <div className="relative w-12 h-12 rounded-xl border-2 border-[var(--color-borde)] overflow-hidden shadow-sm">
                                 <input type="color" value={form.color_primario} onChange={(e) => setForm({ ...form, color_primario: e.target.value })} className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer" />
                             </div>
                             <div>
-                                <p className="text-gray-900 font-medium">{form.color_primario}</p>
-                                <p className="text-gray-400 text-xs">Utilizado en tema oscuro/claro de app.</p>
+                                <p className="text-[var(--color-texto-1)] font-medium">{form.color_primario}</p>
+                                <p className="text-[var(--color-texto-3)] text-xs">Utilizado en tema oscuro/claro de app.</p>
                             </div>
-                            <button onClick={() => setForm({ ...form, color_primario: '#4A2C2A' })} className="ml-auto text-cafe-500 hover:text-cafe-600 text-sm font-medium px-3 py-1.5 bg-cafe-50 rounded-lg">Restaurar Original</button>
+                            <button onClick={() => setForm({ ...form, color_primario: '#4A2C2A' })} className="ml-auto text-[var(--color-texto-2)] hover:text-[var(--color-texto-1)] text-sm font-medium px-3 py-1.5 bg-cafe-50 rounded-lg">Restaurar Original</button>
                         </div>
                     </div>
                 </div>
 
                 <div className="mt-8 flex items-center justify-end gap-4">
-                    <button onClick={handleGuardar} disabled={guardando || !form.nombre_negocio || !form.telefono_whatsapp} className="bg-cafe-600 hover:bg-cafe-700 text-white font-medium px-8 py-3 rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[160px]">
+                    <button onClick={handleGuardar} disabled={guardando || !form.nombre_negocio || !form.telefono_whatsapp} className="bg-[var(--color-acento)] hover:bg-cafe-700 text-white font-medium px-8 py-3 rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[160px]">
                         {guardando ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Guardar Cambios'}
                     </button>
                 </div>
             </div>
 
             {exito && (
-                <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in-up">
+                <div className="fixed bottom-6 right-6 bg-[var(--color-matcha)] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slide-in-up">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                     <span className="font-medium">Configuración guardada exitosamente</span>
                 </div>

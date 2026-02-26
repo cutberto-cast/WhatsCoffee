@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { createClient } from '@/lib/supabase/server';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Nube Alta Cafe | Menú Digital',
@@ -27,12 +34,12 @@ export default async function RootLayout({
     .limit(1)
     .single();
 
-  const colorPrimario = config?.color_primario ?? '#4A2C2A';
+  const colorPrimario = config?.color_primario ?? '#B35D33';
 
   return (
     <html lang="es">
       <body
-        className="antialiased min-h-screen"
+        className={`${inter.variable} font-sans antialiased min-h-screen`}
         style={{ '--color-primario': colorPrimario } as React.CSSProperties}
       >
         {children}

@@ -134,8 +134,8 @@ export default function AdminToppingsPage() {
             {/* Encabezado */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Toppings</h1>
-                    <p className="text-gray-500 text-sm">
+                    <h1 className="text-xl font-semibold text-[var(--color-texto-1)] tracking-tight">Toppings</h1>
+                    <p className="text-[13px] text-[var(--color-texto-3)]">
                         {toppings.length} toppings en el catálogo
                     </p>
                 </div>
@@ -155,21 +155,21 @@ export default function AdminToppingsPage() {
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
-                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <tr className="bg-[var(--color-base)] border-b border-gray-100">
+                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-[var(--color-texto-3)] uppercase tracking-wider">
                                     Nombre
                                 </th>
-                                <th className="text-center px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                <th className="text-center px-5 py-3.5 text-xs font-semibold text-[var(--color-texto-3)] uppercase tracking-wider">
                                     Estado
                                 </th>
-                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-[var(--color-texto-3)] uppercase tracking-wider">
                                     Acciones
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {toppings.map((topping) => (
-                                <tr key={topping.id} className="hover:bg-gray-50/50 transition-colors">
+                                <tr key={topping.id} className="hover:bg-[var(--color-base)]/50 transition-colors">
                                     <td className="px-5 py-3">
                                         <div className="flex items-center gap-3">
                                             <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
@@ -177,7 +177,7 @@ export default function AdminToppingsPage() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
                                                 </svg>
                                             </div>
-                                            <span className="font-medium text-gray-900 text-sm">
+                                            <span className="font-medium text-[var(--color-texto-1)] text-sm">
                                                 {topping.nombre}
                                             </span>
                                         </div>
@@ -185,7 +185,7 @@ export default function AdminToppingsPage() {
                                     <td className="px-5 py-3 text-center">
                                         <button
                                             onClick={() => toggleActivo(topping)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${topping.activo ? 'bg-green-500' : 'bg-gray-300'
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${topping.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'
                                                 }`}
                                         >
                                             <span
@@ -198,7 +198,7 @@ export default function AdminToppingsPage() {
                                         <div className="flex items-center justify-end gap-1">
                                             <button
                                                 onClick={() => abrirEditar(topping)}
-                                                className="p-2 hover:bg-cafe-50 rounded-lg transition-colors text-cafe-500"
+                                                className="p-2 hover:bg-[var(--color-base)] rounded-lg transition-colors text-[var(--color-texto-2)] hover:text-[var(--color-texto-1)]"
                                             >
                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -206,7 +206,7 @@ export default function AdminToppingsPage() {
                                             </button>
                                             <button
                                                 onClick={() => setConfirmarEliminar(topping.id)}
-                                                className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-400"
+                                                className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-500"
                                             >
                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -221,7 +221,7 @@ export default function AdminToppingsPage() {
                 </div>
                 {toppings.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-[var(--color-texto-3)] text-sm">
                             Aún no hay toppings en el catálogo
                         </p>
                     </div>
@@ -232,17 +232,17 @@ export default function AdminToppingsPage() {
             {modalAbierto && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[var(--color-espresso-dark)]/40 backdrop-blur-sm"
                         onClick={() => setModalAbierto(false)}
                     />
                     <div className="relative bg-white rounded-2xl w-full max-w-md shadow-2xl animate-scale-in">
                         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className="text-lg font-semibold text-[var(--color-texto-1)]">
                                 {editando ? 'Editar Topping' : 'Nuevo Topping'}
                             </h3>
                             <button
                                 onClick={() => setModalAbierto(false)}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-[var(--color-texto-3)] hover:text-[var(--color-texto-2)] transition-colors"
                             >
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -251,7 +251,7 @@ export default function AdminToppingsPage() {
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">
+                                <label className="block text-xs font-medium text-[var(--color-texto-3)] mb-1">
                                     Nombre del topping *
                                 </label>
                                 <input
@@ -264,9 +264,9 @@ export default function AdminToppingsPage() {
                                         })
                                     }
                                     placeholder="Ej: Nutella, Fresa, Cajeta..."
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                    className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all"
                                 />
-                                <p className="text-right text-xs text-gray-400 mt-1">
+                                <p className="text-right text-xs text-[var(--color-texto-3)] mt-1">
                                     {form.nombre.length}/50
                                 </p>
                             </div>
@@ -276,7 +276,7 @@ export default function AdminToppingsPage() {
                                     onClick={() =>
                                         setForm({ ...form, activo: !form.activo })
                                     }
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-green-500' : 'bg-gray-300'
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'
                                         }`}
                                 >
                                     <span
@@ -284,15 +284,15 @@ export default function AdminToppingsPage() {
                                             }`}
                                     />
                                 </button>
-                                <span className="text-sm text-gray-600">
+                                <span className="text-sm text-[var(--color-texto-2)]">
                                     {form.activo ? 'Activo' : 'Inactivo'}
                                 </span>
                             </div>
                         </div>
-                        <div className="border-t border-gray-100 px-6 py-4 flex gap-3">
+                        <div className="border-t border-[var(--color-borde)] px-6 py-4 flex gap-3">
                             <button
                                 onClick={() => setModalAbierto(false)}
-                                className="flex-1 px-4 py-2.5 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium"
+                                className="flex-1 px-4 py-2.5 text-[var(--color-texto-2)] hover:bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-sm font-medium"
                             >
                                 Cancelar
                             </button>
@@ -318,26 +318,26 @@ export default function AdminToppingsPage() {
             {confirmarEliminar && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[var(--color-espresso-dark)]/40 backdrop-blur-sm"
                         onClick={() => setConfirmarEliminar(null)}
                     />
-                    <div className="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-scale-in text-center">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <div className="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-[var(--shadow-modal)] border border-[var(--color-borde)] animate-scale-in text-center text-center">
+                        <h3 className="text-lg font-semibold text-[var(--color-texto-1)] mb-2">
                             ¿Eliminar topping?
                         </h3>
-                        <p className="text-gray-500 text-sm mb-6">
+                        <p className="text-[13px] text-[var(--color-texto-3)] mb-6">
                             Se eliminará del catálogo y de todos los productos que lo tengan vinculado.
                         </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setConfirmarEliminar(null)}
-                                className="flex-1 px-4 py-2.5 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium"
+                                className="flex-1 px-4 py-2.5 text-[var(--color-texto-2)] hover:bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-sm font-medium"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={() => handleEliminar(confirmarEliminar)}
-                                className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-medium"
+                                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-all"
                             >
                                 Eliminar
                             </button>

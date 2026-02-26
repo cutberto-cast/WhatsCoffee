@@ -259,21 +259,21 @@ export default function AdminBannersPage() {
         <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Banners Promocionales</h1>
-                    <p className="text-gray-500 text-sm">{banners.length} banners configurados</p>
+                    <h1 className="text-xl font-semibold text-[var(--color-texto-1)] tracking-tight">Banners Promocionales</h1>
+                    <p className="text-[13px] text-[var(--color-texto-3)]">{banners.length} banners configurados</p>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                     <div className="flex items-center gap-3">
-                        <button onClick={abrirConstruir} className="bg-[var(--color-primario)] hover:bg-[var(--color-primario)]/90 text-white font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm">
+                        <button onClick={abrirConstruir} className="bg-[var(--color-acento)] hover:bg-[var(--color-acento-hover)] text-white shadow-sm rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2">
                             <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72" /><path d="m14 7 3 3" /><path d="M5 6v4" /><path d="M19 14v4" /><path d="M10 2v2" /><path d="M7 8H3" /><path d="M21 16h-4" /><path d="M11 3H9" /></svg>
                             Construir banner
                         </button>
-                        <button onClick={abrirSubir} className="border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-amber-50 font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm bg-transparent">
+                        <button onClick={abrirSubir} className="bg-white border border-[var(--color-borde)] text-[var(--color-texto-2)] hover:text-[var(--color-texto-1)] hover:bg-[var(--color-base)] shadow-sm rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2">
                             <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>
                             Subir banner
                         </button>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-[var(--color-texto-3)] mt-1">
                         Construir: elige fondo y personaliza el texto. Subir: usa un banner que ya tienes listo.
                     </p>
                 </div>
@@ -284,7 +284,7 @@ export default function AdminBannersPage() {
                     const isFullImage = !!banner.imagen_fondo_completo_url;
                     const prodCount = (productosVinculadosList[banner.id] || []).length;
                     return (
-                        <div key={banner.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all group">
+                        <div key={banner.id} className="bg-white border border-[var(--color-borde)] rounded-xl shadow-[var(--shadow-card)] overflow-hidden transition-shadow hover:shadow-[var(--shadow-hover)]">
                             <div className={`relative h-48 sm:h-64 md:h-72 w-full flex items-center ${!banner.activo && 'opacity-60 grayscale'}`} style={{
                                 backgroundImage: isFullImage ? `url(${banner.imagen_fondo_completo_url})` : `url(/images/fondos/${banner.fondo_seleccionado || 'fondo1'}.jpg)`,
                                 backgroundSize: 'cover',
@@ -308,9 +308,9 @@ export default function AdminBannersPage() {
                                     </div>
                                 )}
                                 <div className="absolute top-4 left-4 flex gap-2">
-                                    <span className="bg-cafe-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">Orden: {banner.orden}</span>
+                                    <span className="bg-[var(--color-acento)] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">Orden: {banner.orden}</span>
                                     {isFullImage ? (
-                                        <span className="bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full shadow-md">Personalizado</span>
+                                        <span className="bg-gray-100 text-[var(--color-texto-2)] text-xs font-bold px-3 py-1 rounded-full shadow-md">Personalizado</span>
                                     ) : (
                                         <span className="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full shadow-md">Construido</span>
                                     )}
@@ -325,11 +325,11 @@ export default function AdminBannersPage() {
                                     </button>
                                 </div>
                             </div>
-                            <div className="px-6 py-4 flex items-center justify-between bg-gray-50 border-t border-gray-100">
-                                <span className="text-sm font-medium text-gray-700">Estado del banner en la tienda:</span>
+                            <div className="px-6 py-4 flex items-center justify-between bg-[var(--color-base)] border-t border-[var(--color-borde)]">
+                                <span className="text-sm font-medium text-[var(--color-texto-2)]">Estado del banner en la tienda:</span>
                                 <div className="flex items-center gap-3">
-                                    <span className={`text-sm font-semibold ${banner.activo ? 'text-green-600' : 'text-gray-500'}`}>{banner.activo ? 'Mostrando' : 'Oculto'}</span>
-                                    <button onClick={() => toggleActivo(banner)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${banner.activo ? 'bg-green-500' : 'bg-gray-300'}`}>
+                                    <span className={`text-sm font-semibold ${banner.activo ? 'text-green-600' : 'text-[var(--color-texto-3)]'}`}>{banner.activo ? 'Mostrando' : 'Oculto'}</span>
+                                    <button onClick={() => toggleActivo(banner)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${banner.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}>
                                         <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-sm ${banner.activo ? 'translate-x-6' : 'translate-x-1'}`} />
                                     </button>
                                 </div>
@@ -337,14 +337,14 @@ export default function AdminBannersPage() {
                         </div>
                     );
                 })}
-                {banners.length === 0 && <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-100"><p className="text-gray-400">Aún no hay banners configurados</p></div>}
+                {banners.length === 0 && <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-100"><p className="text-[var(--color-texto-3)]">Aún no hay banners configurados</p></div>}
             </div>
 
             {modalAbierto && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModalAbierto(false)} />
-                    <div className="relative bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 px-6 pt-6 text-center border-b border-gray-100 pb-4">
+                    <div className="absolute inset-0 bg-[var(--color-espresso-dark)]/40 backdrop-blur-sm" onClick={() => setModalAbierto(false)} />
+                    <div className="relative bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-[var(--shadow-modal)] border border-[var(--color-borde)] animate-scale-in">
+                        <h3 className="text-lg font-semibold text-[var(--color-texto-1)] mb-4 px-6 pt-6 text-center border-b border-gray-100 pb-4">
                             {editando ? (tipoFormulario === 'construir' ? 'Editar banner construido' : 'Editar banner subido') : (tipoFormulario === 'construir' ? 'Construir nuevo banner' : 'Subir nuevo banner')}
                         </h3>
                         <div className="px-6 pb-6 space-y-5 pt-2">
@@ -352,52 +352,52 @@ export default function AdminBannersPage() {
                                 // --- FORMULARIO CONSTRUIR --- //
                                 <>
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Título *</label>
-                                        <input type="text" value={form.titulo || ''} onChange={(e) => setForm({ ...form, titulo: e.target.value.substring(0, 60) })} placeholder="Ej: Nueva Mega Burger" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" />
-                                        <p className="text-right text-xs text-gray-400 mt-1">{(form.titulo || '').length}/60</p>
+                                        <label className="block text-xs font-semibold text-[var(--color-texto-2)] mb-1">Título *</label>
+                                        <input type="text" value={form.titulo || ''} onChange={(e) => setForm({ ...form, titulo: e.target.value.substring(0, 60) })} placeholder="Ej: Nueva Mega Burger" className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all" />
+                                        <p className="text-right text-xs text-[var(--color-texto-3)] mt-1">{(form.titulo || '').length}/60</p>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Descripción (opcional)</label>
-                                        <textarea value={form.descripcion || ''} onChange={(e) => setForm({ ...form, descripcion: e.target.value.substring(0, 120) })} rows={2} placeholder="Ej: Disponible solo esta semana" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400 resize-none" />
-                                        <p className="text-right text-xs text-gray-400 mt-1">{(form.descripcion || '').length}/120</p>
+                                        <label className="block text-xs font-semibold text-[var(--color-texto-2)] mb-1">Descripción (opcional)</label>
+                                        <textarea value={form.descripcion || ''} onChange={(e) => setForm({ ...form, descripcion: e.target.value.substring(0, 120) })} rows={2} placeholder="Ej: Disponible solo esta semana" className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all resize-none" />
+                                        <p className="text-right text-xs text-[var(--color-texto-3)] mt-1">{(form.descripcion || '').length}/120</p>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Imagen del producto (opcional)</label>
+                                        <label className="block text-xs font-semibold text-[var(--color-texto-2)] mb-1">Imagen del producto (opcional)</label>
                                         {form.imagen_url && (
-                                            <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 mb-2">
+                                            <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[var(--color-base)] border border-[var(--color-borde)] mb-2">
                                                 <Image src={form.imagen_url} alt="Preview" fill className="object-contain p-2" sizes="100px" />
                                                 <button onClick={() => setForm({ ...form, imagen_url: '' })} className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm text-red-500 hover:bg-red-50"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
                                             </div>
                                         )}
-                                        <label className="block w-full cursor-pointer bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-center transition-colors flex items-center justify-center gap-2">
+                                        <label className="block w-full cursor-pointer bg-[var(--color-base)] hover:bg-gray-100 border border-[var(--color-borde)] rounded-xl px-4 py-2.5 text-sm text-center transition-colors flex items-center justify-center gap-2">
                                             {subiendoImagen ? (
-                                                <div className="w-4 h-4 border-2 border-cafe-600/30 border-t-cafe-600 rounded-full animate-spin" />
+                                                <div className="w-4 h-4 border-2 border-[var(--color-espresso)]/30 border-t-cafe-600 rounded-full animate-spin" />
                                             ) : (
                                                 <>
-                                                    <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                                    <span className="text-gray-600 font-medium">Seleccionar imagen</span>
+                                                    <svg className="w-4 h-4 text-[var(--color-texto-3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                                    <span className="text-[var(--color-texto-2)] font-medium">Seleccionar imagen</span>
                                                 </>
                                             )}
                                             <input type="file" accept="image/svg+xml, image/png, image/jpeg, image/webp" className="hidden" onChange={handleSubirImagen} disabled={subiendoImagen} />
                                         </label>
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <p className="text-xs text-[var(--color-texto-3)] mt-1">
                                             Recomendamos SVG o PNG sin fondo · Tamaño ideal: 400×400px (1:1)
                                         </p>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 mb-2">Fondo del banner</label>
+                                        <label className="block text-xs font-semibold text-[var(--color-texto-2)] mb-2">Fondo del banner</label>
                                         <div className="grid grid-cols-2 gap-3">
-                                            <label className={`cursor-pointer border-2 rounded-xl overflow-hidden relative ${form.fondo_seleccionado === 'fondo1' ? 'border-cafe-600 ring-2 ring-cafe-600/20' : 'border-gray-200 hover:border-cafe-300'}`}>
+                                            <label className={`cursor-pointer border-2 rounded-xl overflow-hidden relative ${form.fondo_seleccionado === 'fondo1' ? 'border-[var(--color-espresso)] ring-2 ring-[var(--color-espresso)]/20' : 'border-[var(--color-borde)] hover:border-[var(--color-espresso)]'}`}>
                                                 <input type="radio" name="fondo" value="fondo1" checked={form.fondo_seleccionado === 'fondo1'} onChange={() => setForm({ ...form, fondo_seleccionado: 'fondo1' })} className="hidden" />
                                                 <div className="h-20 w-full relative"><Image src="/images/fondos/fondo1.jpg" alt="Fondo 1" fill className="object-cover" sizes="200px" /></div>
-                                                <div className="p-2 text-center text-xs font-medium text-gray-700 bg-white">Fondo 1</div>
+                                                <div className="p-2 text-center text-xs font-medium text-[var(--color-texto-2)] bg-white">Fondo 1</div>
                                             </label>
-                                            <label className={`cursor-pointer border-2 rounded-xl overflow-hidden relative ${form.fondo_seleccionado === 'fondo2' ? 'border-cafe-600 ring-2 ring-cafe-600/20' : 'border-gray-200 hover:border-cafe-300'}`}>
+                                            <label className={`cursor-pointer border-2 rounded-xl overflow-hidden relative ${form.fondo_seleccionado === 'fondo2' ? 'border-[var(--color-espresso)] ring-2 ring-[var(--color-espresso)]/20' : 'border-[var(--color-borde)] hover:border-[var(--color-espresso)]'}`}>
                                                 <input type="radio" name="fondo" value="fondo2" checked={form.fondo_seleccionado === 'fondo2'} onChange={() => setForm({ ...form, fondo_seleccionado: 'fondo2' })} className="hidden" />
                                                 <div className="h-20 w-full relative"><Image src="/images/fondos/fondo2.jpg" alt="Fondo 2" fill className="object-cover" sizes="200px" /></div>
-                                                <div className="p-2 text-center text-xs font-medium text-gray-700 bg-white">Fondo 2</div>
+                                                <div className="p-2 text-center text-xs font-medium text-[var(--color-texto-2)] bg-white">Fondo 2</div>
                                             </label>
                                         </div>
                                     </div>
@@ -405,16 +405,16 @@ export default function AdminBannersPage() {
                             ) : (
                                 // --- FORMULARIO SUBIR --- //
                                 <>
-                                    <div className="bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                                        <p className="text-sm text-gray-600 leading-relaxed">
+                                    <div className="bg-[var(--color-base)] px-4 py-3 rounded-xl border border-[var(--color-borde)]">
+                                        <p className="text-sm text-[var(--color-texto-2)] leading-relaxed">
                                             Sube una imagen que ya tengas lista (creada en Canva, con tu diseñador, etc.). La imagen ocupará todo el espacio del banner.
                                         </p>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Imagen del banner *</label>
+                                        <label className="block text-xs font-semibold text-[var(--color-texto-2)] mb-1">Imagen del banner *</label>
                                         {form.imagen_fondo_completo_url && (
-                                            <div className="relative w-full aspect-[5/1] rounded-xl overflow-hidden bg-gray-50 border border-gray-200 mb-3 grayscale-0">
+                                            <div className="relative w-full aspect-[5/1] rounded-xl overflow-hidden bg-[var(--color-base)] border border-[var(--color-borde)] mb-3 grayscale-0">
                                                 <Image src={form.imagen_fondo_completo_url} alt="Preview" fill className="object-cover" sizes="500px" />
                                                 <div className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                                     <span className="bg-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">Aspecto final 5:1</span>
@@ -422,31 +422,31 @@ export default function AdminBannersPage() {
                                                 <button onClick={() => setForm({ ...form, imagen_fondo_completo_url: '' })} className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm text-red-500 hover:bg-red-50"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
                                             </div>
                                         )}
-                                        <label className="block w-full cursor-pointer bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-sm text-center transition-colors flex items-center justify-center gap-2 border-dashed">
+                                        <label className="block w-full cursor-pointer bg-[var(--color-base)] hover:bg-gray-100 border border-[var(--color-borde)] rounded-xl px-4 py-3 text-sm text-center transition-colors flex items-center justify-center gap-2 border-dashed">
                                             {subiendoFondo ? (
-                                                <div className="w-5 h-5 border-2 border-cafe-600/30 border-t-cafe-600 rounded-full animate-spin" />
+                                                <div className="w-5 h-5 border-2 border-[var(--color-espresso)]/30 border-t-cafe-600 rounded-full animate-spin" />
                                             ) : (
                                                 <>
-                                                    <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                                    <span className="text-gray-700 font-medium">Seleccionar imagen del banner</span>
+                                                    <svg className="w-5 h-5 text-[var(--color-texto-3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                                    <span className="text-[var(--color-texto-2)] font-medium">Seleccionar imagen del banner</span>
                                                 </>
                                             )}
                                             <input type="file" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={handleSubirFondoCompleto} disabled={subiendoFondo} />
                                         </label>
-                                        <p className="text-xs text-gray-400 mt-2 text-center">Tamaño recomendado: 800 x 160px o proporción 5:1</p>
+                                        <p className="text-xs text-[var(--color-texto-3)] mt-2 text-center">Tamaño recomendado: 800 x 160px o proporción 5:1</p>
                                     </div>
                                 </>
                             )}
 
                             {/* --- SECCIÓN COMPARTIDA --- */}
-                            <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 mt-4">
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                            <div className="border border-[var(--color-borde)] rounded-xl p-4 bg-[var(--color-base)] mt-4">
+                                <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-1">
                                     {tipoFormulario === 'construir' ? 'Productos vinculados (opcional)' : '¿Este banner promociona productos específicos? (opcional)'}
                                 </label>
-                                <p className="text-xs text-gray-500 mb-3">El cliente verá estos productos al tocar el banner.</p>
-                                <div className="max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg p-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <p className="text-xs text-[var(--color-texto-3)] mb-3">El cliente verá estos productos al tocar el banner.</p>
+                                <div className="max-h-40 overflow-y-auto bg-white border border-[var(--color-borde)] rounded-lg p-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {productos.map(p => (
-                                        <label key={p.id} className="flex items-center gap-2 text-sm p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                        <label key={p.id} className="flex items-center gap-2 text-sm p-1.5 hover:bg-[var(--color-base)] rounded cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={form.productos_vinculados.includes(p.id)}
@@ -457,31 +457,31 @@ export default function AdminBannersPage() {
                                                         setForm({ ...form, productos_vinculados: form.productos_vinculados.filter(id => id !== p.id) });
                                                     }
                                                 }}
-                                                className="rounded text-cafe-600 focus:ring-cafe-500 w-4 h-4"
+                                                className="rounded text-[var(--color-texto-1)] focus:ring-cafe-500 w-4 h-4"
                                             />
                                             <span className="truncate flex-1">{p.nombre}</span>
                                         </label>
                                     ))}
-                                    {productos.length === 0 && <span className="text-xs text-gray-400 p-2">No hay productos disponibles</span>}
+                                    {productos.length === 0 && <span className="text-xs text-[var(--color-texto-3)] p-2">No hay productos disponibles</span>}
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 mt-2">
-                                <div><label className="block text-xs font-medium text-gray-500 mb-1">Orden de aparición</label><input type="number" value={form.orden} onChange={(e) => setForm({ ...form, orden: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" min="1" /></div>
-                                <div className="flex items-center justify-between pt-6 border border-gray-200 rounded-xl px-4 bg-white">
-                                    <span className="text-sm font-semibold text-gray-700">Estado</span>
-                                    <button onClick={() => setForm({ ...form, activo: !form.activo })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-green-500' : 'bg-gray-300'}`}>
+                                <div><label className="block text-xs font-medium text-[var(--color-texto-3)] mb-1">Orden de aparición</label><input type="number" value={form.orden} onChange={(e) => setForm({ ...form, orden: e.target.value })} className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all" min="1" /></div>
+                                <div className="flex items-center justify-between pt-6 border border-[var(--color-borde)] rounded-xl px-4 bg-white">
+                                    <span className="text-sm font-semibold text-[var(--color-texto-2)]">Estado</span>
+                                    <button onClick={() => setForm({ ...form, activo: !form.activo })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}>
                                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${form.activo ? 'translate-x-6' : 'translate-x-1'}`} />
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div className="border-t border-gray-100 px-6 py-4 flex gap-3 bg-gray-50 rounded-b-2xl">
-                            <button onClick={() => setModalAbierto(false)} className="flex-1 px-4 py-2.5 text-gray-600 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-semibold bg-white shadow-sm transition-colors">Cancelar</button>
+                        <div className="border-t border-[var(--color-borde)] px-6 py-4 flex gap-3 rounded-b-xl bg-[var(--color-base)]">
+                            <button onClick={() => setModalAbierto(false)} className="flex-1 px-4 py-2.5 text-[var(--color-texto-2)] hover:bg-gray-100 border border-[var(--color-borde)] rounded-xl text-sm font-semibold bg-white shadow-sm transition-colors">Cancelar</button>
                             <button
                                 onClick={handleGuardar}
                                 disabled={guardando || (tipoFormulario === 'construir' && !form.titulo) || (tipoFormulario === 'subir' && !form.imagen_fondo_completo_url)}
-                                className="flex-1 px-4 py-2.5 bg-[var(--color-primario)] hover:bg-[var(--color-primario)]/90 disabled:opacity-60 flex justify-center text-white rounded-xl text-sm font-semibold shadow-sm transition-colors"
+                                className="flex-1 bg-[var(--color-acento)] hover:bg-[var(--color-acento-hover)] disabled:opacity-50 flex justify-center items-center text-white rounded-lg px-4 py-2 text-sm font-medium transition-all shadow-sm"
                             >
                                 {guardando ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (editando ? 'Guardar Cambios' : 'Crear Banner')}
                             </button>
@@ -492,13 +492,13 @@ export default function AdminBannersPage() {
 
             {confirmarEliminar && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmarEliminar(null)} />
-                    <div className="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-scale-in text-center">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Eliminar banner?</h3>
-                        <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
+                    <div className="absolute inset-0 bg-[var(--color-espresso-dark)]/40 backdrop-blur-sm" onClick={() => setConfirmarEliminar(null)} />
+                    <div className="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-[var(--shadow-modal)] border border-[var(--color-borde)] animate-scale-in text-center text-center">
+                        <h3 className="text-lg font-semibold text-[var(--color-texto-1)] mb-2">¿Eliminar banner?</h3>
+                        <p className="text-[13px] text-[var(--color-texto-3)] mb-6">Esta acción no se puede deshacer.</p>
                         <div className="flex gap-3">
-                            <button onClick={() => setConfirmarEliminar(null)} className="flex-1 px-4 py-2.5 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">Cancelar</button>
-                            <button onClick={() => handleEliminar(confirmarEliminar)} className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-medium">Eliminar</button>
+                            <button onClick={() => setConfirmarEliminar(null)} className="flex-1 px-4 py-2.5 text-[var(--color-texto-2)] hover:bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-sm font-medium">Cancelar</button>
+                            <button onClick={() => handleEliminar(confirmarEliminar)} className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-all">Eliminar</button>
                         </div>
                     </div>
                 </div>

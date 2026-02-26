@@ -342,83 +342,80 @@ export default function AdminProductosPage() {
         <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Productos</h1>
-                    <p className="text-gray-500 text-sm">{productos.length} productos en total</p>
+                    <h1 className="text-xl font-semibold text-[var(--color-texto-1)] tracking-tight">Productos</h1>
+                    <p className="text-[13px] text-[var(--color-texto-3)]">{productos.length} productos en total</p>
                 </div>
-                <button onClick={abrirCrear} className="bg-cafe-600 hover:bg-cafe-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                <button onClick={abrirCrear} className="bg-[var(--color-acento)] hover:bg-[var(--color-acento-hover)] text-white font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2 text-sm shadow-sm">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
                     Nuevo Producto
                 </button>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-                <input type="text" placeholder="Buscar productos..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" />
-                <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)} className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400">
+                <input type="text" placeholder="Buscar productos..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} className="flex-1 px-3 py-2 bg-white border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all" />
+                <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)} className="px-3 py-2 bg-white border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all">
                     <option value="">Todas las categorías</option>
                     {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
             </div>
 
             {/* Tabla de productos */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-[var(--color-borde)] rounded-xl shadow-[var(--shadow-card)] overflow-hidden transition-shadow hover:shadow-[var(--shadow-hover)]">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
-                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Producto</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Categoría</th>
-                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio</th>
-                                <th className="text-center px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Tipo</th>
-                                <th className="text-center px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+                            <tr className="border-b border-[var(--color-borde)] text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
+                                <th className="text-left px-5 py-3.5">Producto</th>
+                                <th className="text-left px-5 py-3.5 hidden sm:table-cell">Categoría</th>
+                                <th className="text-left px-5 py-3.5">Precio</th>
+                                <th className="text-center px-5 py-3.5 hidden sm:table-cell">Tipo</th>
+                                <th className="text-center px-5 py-3.5">Estado</th>
+                                <th className="text-right px-5 py-3.5">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-[var(--color-borde)]">
                             {productosFiltrados.map((producto) => (
-                                <tr key={producto.id} className="hover:bg-gray-50/50 transition-colors">
+                                <tr key={producto.id} className="hover:bg-[var(--color-base)] transition-colors duration-150">
                                     <td className="px-5 py-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-cafe-50 flex-shrink-0">
+                                            <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-[var(--color-base)] border border-[var(--color-borde)] flex-shrink-0">
                                                 {producto.imagen_url ? (
                                                     <Image src={producto.imagen_url} alt={producto.nombre} fill className="object-cover" sizes="44px" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center"><svg className="w-5 h-5 text-cafe-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div>
+                                                    <div className="w-full h-full flex items-center justify-center"><svg className="w-5 h-5 text-[var(--color-texto-3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div>
                                                 )}
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="font-medium text-gray-900 text-sm truncate">{producto.nombre}</p>
-                                                <p className="text-gray-400 text-xs truncate max-w-[200px]">{producto.descripcion}</p>
+                                                <p className="font-medium text-[13px] text-[var(--color-texto-1)] truncate">{producto.nombre}</p>
+                                                <p className="text-[var(--color-texto-3)] text-xs truncate max-w-[200px]">{producto.descripcion}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-5 py-3 hidden sm:table-cell">
-                                        <span className="text-xs bg-cafe-50 text-cafe-600 px-2.5 py-1 rounded-full font-medium">{getNombreCategoria(producto.categoria_id)}</span>
+                                        <span className="text-xs text-[var(--color-texto-2)] font-medium">{getNombreCategoria(producto.categoria_id)}</span>
                                     </td>
                                     <td className="px-5 py-3">
-                                        <span className="font-semibold text-gray-900 text-sm">
+                                        <span className="font-semibold text-[13px] text-[var(--color-texto-1)]">
                                             {producto.tiene_variantes ? 'Variable' : formatearPrecio(producto.precio ?? 0)}
                                         </span>
                                     </td>
                                     <td className="px-5 py-3 text-center hidden sm:table-cell">
-                                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${producto.tiene_variantes || producto.acepta_toppings
-                                            ? 'bg-purple-50 text-purple-700'
-                                            : 'bg-gray-50 text-gray-500'
-                                            }`}>
+                                        <span className="text-xs text-[var(--color-texto-2)] font-medium">
                                             {getTipoProducto(producto)}
                                         </span>
                                     </td>
                                     <td className="px-5 py-3 text-center">
                                         <button
                                             onClick={() => toggleDisponibilidad(producto)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${producto.esta_disponible ? 'bg-green-500' : 'bg-gray-300'}`}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${producto.esta_disponible ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}
                                         >
                                             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${producto.esta_disponible ? 'translate-x-6' : 'translate-x-1'}`} />
                                         </button>
                                     </td>
                                     <td className="px-5 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
-                                            <button onClick={() => abrirEditar(producto)} className="p-2 hover:bg-cafe-50 rounded-lg transition-colors text-cafe-500"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
-                                            <button onClick={() => setConfirmarEliminar(producto.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-400"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                                            <button onClick={() => abrirEditar(producto)} className="p-2 hover:bg-[var(--color-base)] rounded-lg transition-colors text-[var(--color-texto-2)] hover:text-[var(--color-texto-1)]"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
+                                            <button onClick={() => setConfirmarEliminar(producto.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-500"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -426,54 +423,54 @@ export default function AdminProductosPage() {
                         </tbody>
                     </table>
                 </div>
-                {productosFiltrados.length === 0 && <div className="text-center py-12"><p className="text-gray-400 text-sm">No se encontraron productos</p></div>}
+                {productosFiltrados.length === 0 && <div className="text-center py-12"><p className="text-[var(--color-texto-3)] text-[13px]">No se encontraron productos</p></div>}
             </div>
 
             {/* ═══════ MODAL CREAR/EDITAR ═══════ */}
             {modalAbierto && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModalAbierto(false)} />
-                    <div className="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
-                        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-                            <h3 className="text-lg font-semibold text-gray-900">{productoEditando ? 'Editar Producto' : 'Nuevo Producto'}</h3>
-                            <button onClick={() => setModalAbierto(false)} className="text-gray-400 hover:text-gray-600 transition-colors"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                    <div className="absolute inset-0 bg-[var(--color-espresso-dark)]/40 backdrop-blur-sm" onClick={() => setModalAbierto(false)} />
+                    <div className="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-[var(--shadow-modal)] border border-[var(--color-borde)] animate-scale-in">
+                        <div className="sticky top-0 bg-white border-b border-[var(--color-borde)] px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+                            <h3 className="text-lg font-semibold text-[var(--color-texto-1)]">{productoEditando ? 'Editar Producto' : 'Nuevo Producto'}</h3>
+                            <button onClick={() => setModalAbierto(false)} className="text-[var(--color-texto-3)] hover:text-[var(--color-texto-1)] transition-colors"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
                         </div>
                         <div className="p-6 space-y-4">
                             {/* Vista previa de imagen */}
                             {form.imagen_url && (
-                                <div className="relative w-full h-40 rounded-xl overflow-hidden bg-gray-100">
+                                <div className="relative w-full h-40 rounded-xl overflow-hidden bg-[var(--color-base)] border border-[var(--color-borde)]">
                                     <Image src={form.imagen_url} alt="Preview" fill className="object-cover" sizes="480px" />
                                 </div>
                             )}
 
                             {/* Nombre */}
-                            <div><label className="block text-xs font-medium text-gray-500 mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" /></div>
+                            <div><label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Nombre *</label><input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all" /></div>
 
                             {/* Descripción */}
-                            <div><label className="block text-xs font-medium text-gray-500 mb-1">Descripción</label><textarea value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400 resize-none" /></div>
+                            <div><label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Descripción</label><textarea value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })} rows={3} className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all resize-none" /></div>
 
                             {/* Categoría */}
-                            <div><label className="block text-xs font-medium text-gray-500 mb-1">Categoría *</label>
-                                <select value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400">
+                            <div><label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Categoría *</label>
+                                <select value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })} className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all">
                                     <option value="" disabled>Seleccione categoría</option>
                                     {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                                 </select>
                             </div>
 
                             {/* ══ SECCIÓN PRECIO ══ */}
-                            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                                <label className="block text-xs font-semibold text-gray-700">Tipo de precio</label>
+                            <div className="bg-[var(--color-base)] rounded-xl p-4 space-y-3">
+                                <label className="block text-xs font-semibold text-[var(--color-texto-1)]">Tipo de precio</label>
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
                                         onClick={() => setForm({ ...form, tiene_variantes: false })}
                                         className={`p-3 rounded-xl border-2 text-left transition-all ${!form.tiene_variantes
-                                            ? 'border-cafe-600 bg-white ring-2 ring-cafe-600/20'
-                                            : 'border-gray-200 bg-white hover:border-cafe-300'
+                                            ? 'border-[var(--color-espresso)] bg-white ring-2 ring-[var(--color-espresso)]/30'
+                                            : 'border-[var(--color-borde)] bg-white hover:border-cafe-300'
                                             }`}
                                     >
-                                        <p className="text-sm font-semibold text-gray-800">Precio fijo</p>
-                                        <p className="text-xs text-gray-400 mt-0.5">Un solo precio para este producto</p>
+                                        <p className="text-sm font-semibold text-[var(--color-texto-1)]">Precio fijo</p>
+                                        <p className="text-xs text-[var(--color-texto-3)] mt-0.5">Un solo precio para este producto</p>
                                     </button>
                                     <button
                                         type="button"
@@ -484,34 +481,34 @@ export default function AdminProductosPage() {
                                             }
                                         }}
                                         className={`p-3 rounded-xl border-2 text-left transition-all ${form.tiene_variantes
-                                            ? 'border-cafe-600 bg-white ring-2 ring-cafe-600/20'
-                                            : 'border-gray-200 bg-white hover:border-cafe-300'
+                                            ? 'border-[var(--color-espresso)] bg-white ring-2 ring-[var(--color-espresso)]/30'
+                                            : 'border-[var(--color-borde)] bg-white hover:border-cafe-300'
                                             }`}
                                     >
-                                        <p className="text-sm font-semibold text-gray-800">Tiene variantes</p>
-                                        <p className="text-xs text-gray-400 mt-0.5">El precio depende de la opción elegida</p>
+                                        <p className="text-sm font-semibold text-[var(--color-texto-1)]">Tiene variantes</p>
+                                        <p className="text-xs text-[var(--color-texto-3)] mt-0.5">El precio depende de la opción elegida</p>
                                     </button>
                                 </div>
 
                                 {/* Campo de precio fijo */}
                                 {!form.tiene_variantes && (
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-500 mb-1">Precio (MXN) *</label>
-                                        <input type="number" value={form.precio} onChange={(e) => setForm({ ...form, precio: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" min="0" step="0.5" />
+                                        <label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Precio (MXN) *</label>
+                                        <input type="number" value={form.precio} onChange={(e) => setForm({ ...form, precio: e.target.value })} className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all" min="0" step="0.5" />
                                     </div>
                                 )}
 
                                 {/* Constructor de variantes */}
                                 {form.tiene_variantes && (
-                                    <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-white">
+                                    <div className="border border-[var(--color-borde)] rounded-xl p-4 space-y-3 bg-white">
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-500 mb-1">Nombre del grupo de variantes *</label>
+                                            <label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Nombre del grupo de variantes *</label>
                                             <input
                                                 type="text"
                                                 value={nombreGrupo}
                                                 onChange={(e) => setNombreGrupo(e.target.value)}
                                                 placeholder="Ej: Tamaño, Número de sabores"
-                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all"
                                             />
                                         </div>
 
@@ -523,14 +520,14 @@ export default function AdminProductosPage() {
                                                         value={v.nombre}
                                                         onChange={(e) => actualizarVariante(v.tempId, 'nombre', e.target.value)}
                                                         placeholder="Nombre (Ej: Grande)"
-                                                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                        className="flex-1 px-3 py-2 border border-[var(--color-borde)] rounded-md text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all"
                                                     />
                                                     <input
                                                         type="number"
                                                         value={v.precio}
                                                         onChange={(e) => actualizarVariante(v.tempId, 'precio', e.target.value)}
                                                         placeholder="Precio"
-                                                        className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                        className="w-24 px-3 py-2 border border-[var(--color-borde)] rounded-md text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all"
                                                         min="0"
                                                         step="0.5"
                                                     />
@@ -547,7 +544,7 @@ export default function AdminProductosPage() {
                                         <button
                                             type="button"
                                             onClick={agregarVariante}
-                                            className="w-full py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-cafe-400 hover:text-cafe-600 transition-colors flex items-center justify-center gap-1"
+                                            className="w-full py-2 border border-dashed border-gray-300 rounded-lg text-sm text-[var(--color-texto-2)] hover:border-[var(--color-espresso)] hover:text-[var(--color-texto-1)] transition-colors flex items-center justify-center gap-1"
                                         >
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                                             Agregar variante
@@ -557,15 +554,15 @@ export default function AdminProductosPage() {
                             </div>
 
                             {/* ══ SECCIÓN TOPPINGS ══ */}
-                            <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+                            <div className="border border-[var(--color-borde)] rounded-xl p-4 space-y-3">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <span className="text-sm font-semibold text-gray-700">¿Este producto acepta toppings?</span>
-                                        <p className="text-xs text-gray-400">Extras opcionales que el cliente puede agregar</p>
+                                        <p className="text-xs text-[var(--color-texto-3)]">Extras opcionales que el cliente puede agregar</p>
                                     </div>
                                     <button
                                         onClick={() => setForm({ ...form, acepta_toppings: !form.acepta_toppings })}
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.acepta_toppings ? 'bg-green-500' : 'bg-gray-300'}`}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.acepta_toppings ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}
                                     >
                                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${form.acepta_toppings ? 'translate-x-6' : 'translate-x-1'}`} />
                                     </button>
@@ -575,41 +572,41 @@ export default function AdminProductosPage() {
                                     <>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-500 mb-1">Precio por topping extra</label>
+                                                <label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Precio por topping extra</label>
                                                 <input
                                                     type="number"
                                                     value={form.precio_topping_extra}
                                                     onChange={(e) => setForm({ ...form, precio_topping_extra: e.target.value })}
                                                     placeholder="Ej: 10"
-                                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                    className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all"
                                                     min="0"
                                                     step="0.5"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-500 mb-1">Toppings incluidos sin costo</label>
+                                                <label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Toppings incluidos sin costo</label>
                                                 <input
                                                     type="number"
                                                     value={form.toppings_gratis}
                                                     onChange={(e) => setForm({ ...form, toppings_gratis: e.target.value })}
                                                     placeholder="Ej: 1"
-                                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                    className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all"
                                                     min="0"
                                                 />
-                                                <p className="text-xs text-gray-400 mt-1">
+                                                <p className="text-xs text-[var(--color-texto-3)] mt-1">
                                                     Ej: en crepas el primer sabor ya está en el precio, los adicionales cuestan extra
                                                 </p>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Toppings disponibles para este producto</label>
-                                            <p className="text-xs text-gray-400 mb-2">
+                                            <label className="block text-xs font-semibold text-[var(--color-texto-1)] mb-1">Toppings disponibles para este producto</label>
+                                            <p className="text-xs text-[var(--color-texto-3)] mb-2">
                                                 Gestiona el catálogo completo en la sección Toppings
                                             </p>
                                             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto bg-white border border-gray-100 rounded-lg p-3">
                                                 {todosLosToppings.map((t) => (
-                                                    <label key={t.id} className="flex items-center gap-2 text-sm p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                                    <label key={t.id} className="flex items-center gap-2 text-sm p-1.5 hover:bg-[var(--color-base)] rounded cursor-pointer">
                                                         <input
                                                             type="checkbox"
                                                             checked={form.toppings_seleccionados.includes(t.id)}
@@ -620,13 +617,13 @@ export default function AdminProductosPage() {
                                                                     setForm({ ...form, toppings_seleccionados: form.toppings_seleccionados.filter((id) => id !== t.id) });
                                                                 }
                                                             }}
-                                                            className="rounded text-cafe-600 focus:ring-cafe-500 w-4 h-4"
+                                                            className="rounded text-[var(--color-espresso)] focus:ring-[var(--color-espresso)] w-4 h-4"
                                                         />
                                                         <span className="truncate">{t.nombre}</span>
                                                     </label>
                                                 ))}
                                                 {todosLosToppings.length === 0 && (
-                                                    <span className="text-xs text-gray-400 p-2 col-span-2">
+                                                    <span className="text-xs text-[var(--color-texto-3)] p-2 col-span-2">
                                                         No hay toppings activos. Crea toppings en la sección Toppings primero.
                                                     </span>
                                                 )}
@@ -638,41 +635,41 @@ export default function AdminProductosPage() {
 
                             {/* Imagen */}
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Imagen del producto</label>
+                                <label className="block text-xs font-medium text-[var(--color-texto-2)] mb-1.5">Imagen del producto</label>
                                 <div>
-                                    <label className="w-full cursor-pointer bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-center transition-colors flex items-center justify-center gap-2">
+                                    <label className="w-full cursor-pointer bg-[var(--color-base)] hover:bg-[var(--color-base)] border border-[var(--color-borde)] border border-[var(--color-borde)] rounded-xl px-4 py-2.5 text-sm text-center transition-colors flex items-center justify-center gap-2">
                                         {subiendoImagen ? (
-                                            <div className="w-4 h-4 border-2 border-cafe-600/30 border-t-cafe-600 rounded-full animate-spin" />
+                                            <div className="w-4 h-4 border-2 border-[var(--color-espresso)]/30 border-t-cafe-600 rounded-full animate-spin" />
                                         ) : (
                                             <>
                                                 <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                                <span className="text-gray-600 font-medium">Subir imagen</span>
+                                                <span className="text-[var(--color-texto-2)] font-medium">Subir imagen</span>
                                             </>
                                         )}
                                         <input type="file" accept="image/*" className="hidden" onChange={handleSubirImagen} disabled={subiendoImagen} />
                                     </label>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-1.5">
+                                <p className="text-xs text-[var(--color-texto-3)] mt-1.5">
                                     Proporción recomendada: 1:1 · Mínimo 600×600px · PNG o JPG
                                 </p>
                             </div>
 
                             {/* Toggle de disponibilidad */}
                             <div className="flex items-center gap-3">
-                                <button onClick={() => setForm({ ...form, esta_disponible: !form.esta_disponible })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.esta_disponible ? 'bg-green-500' : 'bg-gray-300'}`}>
+                                <button onClick={() => setForm({ ...form, esta_disponible: !form.esta_disponible })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.esta_disponible ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}>
                                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${form.esta_disponible ? 'translate-x-6' : 'translate-x-1'}`} />
                                 </button>
-                                <span className="text-sm text-gray-600">{form.esta_disponible ? 'Disponible' : 'No disponible'}</span>
+                                <span className="text-sm text-[var(--color-texto-2)]">{form.esta_disponible ? 'Disponible' : 'No disponible'}</span>
                             </div>
                         </div>
 
                         {/* Footer del modal */}
-                        <div className="border-t border-gray-100 px-6 py-4 flex gap-3">
-                            <button onClick={() => setModalAbierto(false)} className="flex-1 px-4 py-2.5 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">Cancelar</button>
+                        <div className="border-t border-[var(--color-borde)] px-6 py-4 flex gap-3">
+                            <button onClick={() => setModalAbierto(false)} className="flex-1 px-4 py-2.5 text-[var(--color-texto-2)] hover:bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-sm font-medium">Cancelar</button>
                             <button
                                 onClick={handleGuardar}
                                 disabled={!form.nombre || !form.categoria_id || (!form.tiene_variantes && !form.precio) || guardando}
-                                className="flex-1 px-4 py-2.5 bg-cafe-600 hover:bg-cafe-700 disabled:opacity-50 flex justify-center items-center text-white rounded-xl text-sm font-medium"
+                                className="flex-1 px-4 py-2.5 bg-[var(--color-acento)] hover:bg-[var(--color-acento-hover)] disabled:opacity-50 flex justify-center items-center text-white rounded-xl text-sm font-medium"
                             >
                                 {guardando ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (productoEditando ? 'Guardar Cambios' : 'Crear Producto')}
                             </button>
@@ -684,13 +681,13 @@ export default function AdminProductosPage() {
             {/* Modal Confirmar Eliminar */}
             {confirmarEliminar && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmarEliminar(null)} />
+                    <div className="absolute inset-0 bg-[var(--color-espresso-dark)]/40 backdrop-blur-sm" onClick={() => setConfirmarEliminar(null)} />
                     <div className="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-scale-in text-center">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Eliminar producto?</h3>
+                        <h3 className="text-lg font-semibold text-[var(--color-texto-1)] mb-2">¿Eliminar producto?</h3>
                         <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer.</p>
                         <div className="flex gap-3">
-                            <button onClick={() => setConfirmarEliminar(null)} className="flex-1 px-4 py-2.5 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">Cancelar</button>
-                            <button onClick={() => handleEliminar(confirmarEliminar)} className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-medium">Eliminar</button>
+                            <button onClick={() => setConfirmarEliminar(null)} className="flex-1 px-4 py-2.5 text-[var(--color-texto-2)] hover:bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-sm font-medium">Cancelar</button>
+                            <button onClick={() => handleEliminar(confirmarEliminar)} className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-all">Eliminar</button>
                         </div>
                     </div>
                 </div>

@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Producto, Categoria, Banner } from '@/types';
+import { Package, CheckCircle, Tag, Image as ImageIcon, Settings } from 'lucide-react';
 
 export default function AdminDashboard() {
     const [productos, setProductos] = useState<Producto[]>([]);
@@ -35,91 +37,188 @@ export default function AdminDashboard() {
         return <div className="animate-pulse space-y-4"><div className="h-8 bg-gray-200 rounded w-48" /><div className="grid grid-cols-2 lg:grid-cols-4 gap-4">{[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-200 rounded-2xl" />)}</div></div>;
     }
 
+    const formatearPrecio = (precio: number) => {
+        return new Intl.NumberFormat('es-MX', {
+            style: 'currency',
+            currency: 'MXN'
+        }).format(precio);
+    };
+
+    const getNombreCategoria = (id: string) => {
+        return categorias.find(c => c.id === id)?.nombre || 'Desconocida';
+    };
+
     const productosActivos = productos.filter((p) => p.esta_disponible).length;
     const bannersActivos = banners.filter((b) => b.activo).length;
 
     const stats = [
-        { label: 'Productos', valor: productos.length, icono: '📦', color: 'from-amber-400 to-orange-500', href: '/admin/productos' },
-        { label: 'Activos', valor: productosActivos, icono: '✅', color: 'from-green-400 to-emerald-500', href: '/admin/productos' },
-        { label: 'Categorías', valor: categorias.length, icono: '📁', color: 'from-blue-400 to-indigo-500', href: '/admin/categorias' },
-        { label: 'Banners', valor: bannersActivos, icono: '🖼️', color: 'from-purple-400 to-pink-500', href: '/admin/banners' },
+        { label: 'Total Productos', valor: productos.length, subtexto: 'En el catálogo', Icon: Package },
+        { label: 'Disponibles', valor: productosActivos, subtexto: 'Activos ahora', Icon: CheckCircle },
+        { label: 'Categorías', valor: categorias.length, subtexto: 'Agrupaciones', Icon: Tag },
+        { label: 'Banners Activos', valor: bannersActivos, subtexto: 'Promociones web', Icon: ImageIcon },
     ];
 
-    const productosRecientes = productos.slice(0, 5);
+    const acciones = [
+        { href: '/admin/productos', label: 'Nuevo Producto', sublabel: 'Agregar al menú', Icon: Package },
+        { href: '/admin/categorias', label: 'Nueva Categoría', sublabel: 'Organizar secciones', Icon: Tag },
+        { href: '/admin/banners', label: 'Nuevo Banner', sublabel: 'Crear promoción', Icon: ImageIcon },
+        { href: '/admin/configuracion', label: 'Configuración', sublabel: 'Ajustes del negocio', Icon: Settings },
+    ];
+
+    const productosRecientes = productos.slice(0, 6);
+
+    const fechaActual = new Date().toLocaleDateString('es-MX', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+    });
 
     return (
         <div className="space-y-8 animate-fade-in">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-500 text-sm mt-1">Resumen general de tu cafetería</p>
+            {/* Header del Dashboard */}
+            <div className="flex items-end justify-between mb-8">
+                <div>
+                    <p className="text-xs font-medium tracking-widest uppercase text-[var(--color-texto-3)] mb-1">
+                        {fechaActual}
+                    </p>
+                    <h1 className="text-2xl font-semibold text-[var(--color-texto-1)] tracking-tight">
+                        Panel de Control
+                    </h1>
+                </div>
+                <span className="text-xs text-[var(--color-texto-3)] flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-matcha)] animate-pulse inline-block" />
+                    Sistema activo
+                </span>
             </div>
 
-            {/* Stats Grid */}
+            {/* Tarjetas de Métricas (KPIs) */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {stats.map((stat) => (
+                {stats.map((stat, idx) => (
+                    <div key={idx} className="bg-white border border-[var(--color-borde)] rounded-xl p-5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-shadow duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
+                                {stat.label}
+                            </span>
+                            <div className="w-7 h-7 rounded-lg bg-[var(--color-base)] border border-[var(--color-borde)] flex items-center justify-center">
+                                <stat.Icon size={14} strokeWidth={1.5} className="text-[var(--color-texto-2)]" />
+                            </div>
+                        </div>
+                        <p className="text-3xl font-semibold text-[var(--color-texto-1)] tracking-tight leading-none mb-1">
+                            {stat.valor}
+                        </p>
+                        <p className="text-xs text-[var(--color-texto-3)]">
+                            {stat.subtexto}
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Acciones Rápidas: Grid de Comandos */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+                {acciones.map((accion) => (
                     <Link
-                        key={stat.label}
-                        href={stat.href}
-                        className="relative overflow-hidden bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow group"
+                        key={accion.href}
+                        href={accion.href}
+                        className="group flex items-center gap-3 p-3.5 bg-white border border-[var(--color-borde)] rounded-xl transition-all duration-200 hover:shadow-[var(--shadow-hover)] hover:border-[var(--color-borde)] hover:-translate-y-0.5"
                     >
-                        <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-[40px] group-hover:opacity-20 transition-opacity`} />
-                        <span className="text-2xl">{stat.icono}</span>
-                        <p className="text-3xl font-bold text-gray-900 mt-2">{stat.valor}</p>
-                        <p className="text-gray-500 text-sm mt-1">{stat.label}</p>
+                        <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center bg-[var(--color-base)] border border-[var(--color-borde)] group-hover:bg-[var(--color-matcha-light)] group-hover:border-[var(--color-matcha)]/30 transition-colors duration-200">
+                            <accion.Icon
+                                size={15}
+                                strokeWidth={1.5}
+                                className="text-[var(--color-texto-2)] group-hover:text-[var(--color-matcha)] transition-colors duration-200"
+                            />
+                        </div>
+                        <div>
+                            <p className="text-[13px] font-medium text-[var(--color-texto-1)] leading-tight">
+                                {accion.label}
+                            </p>
+                            <p className="text-[11px] text-[var(--color-texto-3)] leading-tight mt-0.5">
+                                {accion.sublabel}
+                            </p>
+                        </div>
                     </Link>
                 ))}
             </div>
 
-            {/* Acciones rápidas */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <Link href="/admin/productos" className="flex flex-col items-center gap-2 p-4 bg-cafe-50 hover:bg-cafe-100 rounded-xl transition-colors text-center">
-                        <span className="text-2xl">➕</span>
-                        <span className="text-sm font-medium text-cafe-700">Nuevo Producto</span>
-                    </Link>
-                    <Link href="/admin/categorias" className="flex flex-col items-center gap-2 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors text-center">
-                        <span className="text-2xl">📂</span>
-                        <span className="text-sm font-medium text-blue-700">Nueva Categoría</span>
-                    </Link>
-                    <Link href="/admin/banners" className="flex flex-col items-center gap-2 p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-colors text-center">
-                        <span className="text-2xl">🎨</span>
-                        <span className="text-sm font-medium text-purple-700">Nuevo Banner</span>
-                    </Link>
-                    <Link href="/" target="_blank" className="flex flex-col items-center gap-2 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors text-center">
-                        <span className="text-2xl">👁️</span>
-                        <span className="text-sm font-medium text-green-700">Ver Tienda</span>
-                    </Link>
-                </div>
-            </div>
-
-            {/* Productos recientes */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            {/* DATA TABLE de productos recientes */}
+            <div>
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Productos Recientes</h2>
-                    <Link href="/admin/productos" className="text-cafe-500 hover:text-cafe-600 text-sm font-medium">
+                    <h2 className="text-sm font-semibold text-[var(--color-texto-1)] tracking-tight">
+                        Productos recientes
+                    </h2>
+                    <Link href="/admin/productos" className="text-xs text-[var(--color-texto-3)] hover:text-[var(--color-texto-1)] transition-colors duration-150">
                         Ver todos →
                     </Link>
                 </div>
-                <div className="space-y-3">
-                    {productosRecientes.map((producto) => (
-                        <div key={producto.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                            <div className="w-12 h-12 bg-cafe-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-cafe-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{producto.nombre}</p>
-                                <p className="text-xs text-gray-500">{producto.tiene_variantes ? 'Variable' : `$${producto.precio ?? 0}`}</p>
-                            </div>
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${producto.esta_disponible
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                                }`}>
-                                {producto.esta_disponible ? 'Activo' : 'Inactivo'}
-                            </span>
-                        </div>
-                    ))}
+
+                <div className="bg-white border border-[var(--color-borde)] rounded-xl overflow-hidden shadow-[var(--shadow-card)]">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b border-[var(--color-borde)]">
+                                <th className="text-left px-4 py-3 text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
+                                    Producto
+                                </th>
+                                <th className="text-left px-4 py-3 text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)] hidden sm:table-cell">
+                                    Categoría
+                                </th>
+                                <th className="text-left px-4 py-3 text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
+                                    Precio
+                                </th>
+                                <th className="text-left px-4 py-3 text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
+                                    Estado
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {productosRecientes.map((producto, index) => (
+                                <tr
+                                    key={producto.id}
+                                    className={`transition-colors duration-150 hover:bg-[var(--color-base)] ${index < productosRecientes.length - 1 ? 'border-b border-[var(--color-borde)]' : ''}`}
+                                >
+                                    {/* Miniatura + nombre */}
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-[4px] overflow-hidden flex-shrink-0 bg-[var(--color-base)] border border-[var(--color-borde)] relative">
+                                                {producto.imagen_url
+                                                    ? <Image src={producto.imagen_url} alt={producto.nombre} fill sizes="36px" className="object-cover" />
+                                                    : <div className="w-full h-full flex items-center justify-center">
+                                                        <Package size={14} className="text-[var(--color-texto-3)]" strokeWidth={1.5} />
+                                                    </div>
+                                                }
+                                            </div>
+                                            <span className="text-[13px] font-medium text-[var(--color-texto-1)] truncate max-w-[140px]">
+                                                {producto.nombre}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    {/* Categoría */}
+                                    <td className="px-4 py-3 hidden sm:table-cell">
+                                        <span className="text-[12px] text-[var(--color-texto-2)]">
+                                            {getNombreCategoria(producto.categoria_id)}
+                                        </span>
+                                    </td>
+
+                                    {/* Precio */}
+                                    <td className="px-4 py-3">
+                                        <span className="text-[13px] font-medium text-[var(--color-texto-1)]">
+                                            {producto.tiene_variantes ? 'Variable' : formatearPrecio(producto.precio ?? 0)}
+                                        </span>
+                                    </td>
+
+                                    {/* Estado */}
+                                    <td className="px-4 py-3">
+                                        <span className="flex items-center gap-1.5 text-[12px] font-medium">
+                                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${producto.esta_disponible ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-texto-3)]'}`} />
+                                            <span className={producto.esta_disponible ? 'text-[var(--color-matcha)]' : 'text-[var(--color-texto-3)]'}>
+                                                {producto.esta_disponible ? 'Activo' : 'Inactivo'}
+                                            </span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
