@@ -1,0 +1,245 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import Image from 'next/image';
+import type { Producto, Variante, Topping, CarritoItem } from '@/types';
+import type { GrupoConVariantes } from '@/types/variantes';
+import { formatearPrecio } from '@/lib/utils/formatearPrecio';
+
+interface ConfiguradorProductoProps {
+    producto: Producto;
+    grupo_variantes: GrupoConVariantes | null;
+    toppings_disponibles: Topping[];
+    onCerrar: () => void;
+    onConfirmar: (item: CarritoItem) => void;
+}
+
+export function ConfiguradorProducto({
+    producto,
+    grupo_variantes,
+    toppings_disponibles,
+    onCerrar,
+    onConfirmar,
+}: ConfiguradorProductoProps) {
+    const [varianteElegida, setVarianteElegida] = useState<Variante | null>(null);
+    const [toppingsElegidos, setToppingsElegidos] = useState<Topping[]>([]);
+    const [cantidad, setCantidad] = useState(1);
+    const [errorVariante, setErrorVariante] = useState(false);
+
+    const precioUnitario = useMemo(() => {
+        let base = 0;
+        if (producto.tiene_variantes && varianteElegida) {
+            base = varianteElegida.precio;
+        } else if (!producto.tiene_variantes && producto.precio) {
+            base = producto.precio;
+        }
+
+        const toppingsExtra = Math.max(0, toppingsElegidos.length - producto.toppings_gratis);
+        const costoToppings = toppingsExtra * (producto.precio_topping_extra || 0);
+
+        return base + costoToppings;
+    }, [producto, varianteElegida, toppingsElegidos]);
+
+    const precioTotal = precioUnitario * cantidad;
+
+    const toggleTopping = (topping: Topping) => {
+        setToppingsElegidos((prev) => {
+            const existe = prev.find((t) => t.id === topping.id);
+            if (existe) return prev.filter((t) => t.id !== topping.id);
+            return [...prev, topping];
+        });
+    };
+
+    const handleConfirmar = () => {
+        if (producto.tiene_variantes && !varianteElegida) {
+            setErrorVariante(true);
+            return;
+        }
+
+        onConfirmar({
+            producto,
+            cantidad,
+            variante_elegida: varianteElegida || null,
+            toppings_elegidos: toppingsElegidos,
+            precio_final: precioUnitario,
+        });
+    };
+
+    const variantes = grupo_variantes?.variantes
+        ?.filter((v: Variante) => v.disponible)
+        ?.sort((a: Variante, b: Variante) => a.orden - b.orden) ?? [];
+
+    return (
+        <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Configurar ${producto.nombre}`}
+        >
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onCerrar} />
+
+            <div className="relative bg-crema-50 w-full sm:w-[480px] sm:max-h-[90vh] max-h-[85vh] rounded-t-3xl sm:rounded-3xl overflow-hidden animate-slide-up shadow-2xl flex flex-col">
+                {/* Imagen */}
+                <div className="relative h-52 sm:h-60 bg-cafe-100 flex-shrink-0">
+                    <Image
+                        src={producto.imagen_url}
+                        alt={`Foto de ${producto.nombre}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, 480px"
+                        priority
+                    />
+                    <button
+                        onClick={onCerrar}
+                        className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm w-10 h-10 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md"
+                        aria-label="Cerrar"
+                    >
+                        <svg className="w-5 h-5 text-cafe-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Contenido scrollable */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                    {/* Nombre y descripción */}
+                    <div>
+                        <h2 className="text-xl font-bold text-cafe-900">{producto.nombre}</h2>
+                        {producto.descripcion && (
+                            <p className="text-cafe-600 text-sm mt-1 leading-relaxed">{producto.descripcion}</p>
+                        )}
+                    </div>
+
+                    {/* ═══ SECCIÓN VARIANTES ═══ */}
+                    {producto.tiene_variantes && variantes.length > 0 && (
+                        <div className="space-y-2.5">
+                            <div>
+                                <h3 className="text-sm font-bold text-cafe-800 uppercase tracking-wide">
+                                    {grupo_variantes?.nombre || 'Elige tu opción'}
+                                </h3>
+                                <p className="text-xs text-cafe-400">Obligatorio — elige una</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                {variantes.map((variante: Variante) => (
+                                    <button
+                                        key={variante.id}
+                                        onClick={() => {
+                                            setVarianteElegida(variante);
+                                            setErrorVariante(false);
+                                        }}
+                                        className={`w-full flex items-center justify-between p-3.5 rounded-xl border-2 transition-all ${varianteElegida?.id === variante.id
+                                            ? 'border-cafe-600 bg-cafe-50 ring-2 ring-cafe-600/20'
+                                            : 'border-gray-200 bg-white hover:border-cafe-300'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${varianteElegida?.id === variante.id
+                                                ? 'border-cafe-600'
+                                                : 'border-gray-300'
+                                                }`}>
+                                                {varianteElegida?.id === variante.id && (
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-cafe-600" />
+                                                )}
+                                            </div>
+                                            <span className="font-medium text-sm text-cafe-800">
+                                                {variante.nombre}
+                                            </span>
+                                        </div>
+                                        <span className="font-bold text-sm text-cafe-700">
+                                            {formatearPrecio(variante.precio)}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {errorVariante && (
+                                <p className="text-red-500 text-xs font-medium animate-fade-in">
+                                    ⚠️ Por favor elige una opción
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ═══ SECCIÓN TOPPINGS ═══ */}
+                    {producto.acepta_toppings && toppings_disponibles.length > 0 && (
+                        <div className="space-y-2.5">
+                            <div>
+                                <h3 className="text-sm font-bold text-cafe-800 uppercase tracking-wide">
+                                    Elige tus toppings
+                                </h3>
+                                <p className="text-xs text-cafe-400">
+                                    {producto.toppings_gratis > 0
+                                        ? `Incluye ${producto.toppings_gratis} gratis, extras +${formatearPrecio(producto.precio_topping_extra)} c/u`
+                                        : `Cada uno +${formatearPrecio(producto.precio_topping_extra)}`}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                                {toppings_disponibles.map((topping) => {
+                                    const seleccionado = toppingsElegidos.some((t) => t.id === topping.id);
+                                    return (
+                                        <button
+                                            key={topping.id}
+                                            onClick={() => toggleTopping(topping)}
+                                            className={`flex items-center gap-2.5 p-3 rounded-xl border-2 transition-all text-left ${seleccionado
+                                                ? 'border-cafe-600 bg-cafe-50 ring-1 ring-cafe-600/20'
+                                                : 'border-gray-200 bg-white hover:border-cafe-300'
+                                                }`}
+                                        >
+                                            <div className={`w-4.5 h-4.5 rounded flex items-center justify-center flex-shrink-0 ${seleccionado
+                                                ? 'bg-cafe-600'
+                                                : 'border-2 border-gray-300'
+                                                }`}
+                                                style={{ width: '18px', height: '18px' }}
+                                            >
+                                                {seleccionado && (
+                                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            <span className="text-sm font-medium text-cafe-800 truncate">
+                                                {topping.nombre}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer fijo — cantidad + botón agregar */}
+                <div className="border-t border-cafe-200/50 bg-crema-50 p-5 flex-shrink-0 space-y-3">
+                    {/* Selector de cantidad */}
+                    <div className="flex items-center justify-center gap-4">
+                        <button
+                            onClick={() => setCantidad((prev) => Math.max(prev - 1, 1))}
+                            className="w-10 h-10 rounded-full bg-cafe-100 text-cafe-700 flex items-center justify-center font-bold text-lg hover:bg-cafe-200 active:scale-90 transition-all"
+                        >
+                            −
+                        </button>
+                        <span className="text-cafe-800 font-semibold text-lg w-8 text-center">
+                            {cantidad}
+                        </span>
+                        <button
+                            onClick={() => setCantidad((prev) => Math.min(prev + 1, 20))}
+                            className="w-10 h-10 rounded-full bg-cafe-100 text-cafe-700 flex items-center justify-center font-bold text-lg hover:bg-cafe-200 active:scale-90 transition-all"
+                        >
+                            +
+                        </button>
+                    </div>
+
+                    {/* Botón agregar */}
+                    <button
+                        onClick={handleConfirmar}
+                        className="w-full bg-cafe-700 hover:bg-cafe-800 text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-cafe-700/25 text-base"
+                    >
+                        Agregar al Carrito — {formatearPrecio(precioTotal)}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -4,14 +4,25 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CarritoItem, Producto } from '@/types';
 
+const generarKey = (item: CarritoItem): string => {
+    const varKey = item.variante_elegida?.id || 'sin-variante';
+    const topKey = [...(item.toppings_elegidos || [])]
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .map((t) => t.id)
+        .join('-');
+    return `${item.producto.id}-${varKey}-${topKey || 'sin-toppings'}`;
+};
+
 interface CarritoStore {
     items: CarritoItem[];
-    agregar: (producto: Producto) => void;
-    eliminar: (productoId: string) => void;
-    actualizarCantidad: (productoId: string, cantidad: number) => void;
+    agregarSimple: (producto: Producto) => void;
+    agregarConfigurable: (item: CarritoItem) => void;
+    eliminarPorKey: (key: string) => void;
+    actualizarCantidadPorKey: (key: string, cantidad: number) => void;
     limpiar: () => void;
     totalItems: () => number;
     totalPrecio: () => number;
+    getKey: (item: CarritoItem) => string;
 }
 
 export const useCarrito = create<CarritoStore>()(
@@ -19,38 +30,60 @@ export const useCarrito = create<CarritoStore>()(
         (set, get) => ({
             items: [],
 
-            agregar: (producto: Producto) => {
+            agregarSimple: (producto: Producto) => {
+                const nuevoItem: CarritoItem = {
+                    producto,
+                    cantidad: 1,
+                    precio_final: producto.precio ?? 0,
+                };
+                const key = generarKey(nuevoItem);
+
                 set((state) => {
-                    const existente = state.items.find(
-                        (item) => item.producto.id === producto.id
+                    const idx = state.items.findIndex(
+                        (item) => generarKey(item) === key
                     );
-                    if (existente) {
-                        return {
-                            items: state.items.map((item) =>
-                                item.producto.id === producto.id
-                                    ? { ...item, cantidad: item.cantidad + 1 }
-                                    : item
-                            ),
-                        };
+                    if (idx >= 0) {
+                        const items = [...state.items];
+                        items[idx] = { ...items[idx]!, cantidad: items[idx]!.cantidad + 1 };
+                        return { items };
                     }
-                    return { items: [...state.items, { producto, cantidad: 1 }] };
+                    return { items: [...state.items, nuevoItem] };
                 });
             },
 
-            eliminar: (productoId: string) => {
+            agregarConfigurable: (item: CarritoItem) => {
+                const key = generarKey(item);
+
+                set((state) => {
+                    const idx = state.items.findIndex(
+                        (existing) => generarKey(existing) === key
+                    );
+                    if (idx >= 0) {
+                        const items = [...state.items];
+                        items[idx] = {
+                            ...items[idx]!,
+                            cantidad: items[idx]!.cantidad + item.cantidad,
+                        };
+                        return { items };
+                    }
+                    return { items: [...state.items, item] };
+                });
+            },
+
+            eliminarPorKey: (key: string) => {
                 set((state) => ({
-                    items: state.items.filter((item) => item.producto.id !== productoId),
+                    items: state.items.filter((item) => generarKey(item) !== key),
                 }));
             },
 
-            actualizarCantidad: (productoId: string, cantidad: number) => {
+            actualizarCantidadPorKey: (key: string, cantidad: number) => {
                 if (cantidad <= 0) {
-                    get().eliminar(productoId);
+                    get().eliminarPorKey(key);
                     return;
                 }
                 set((state) => ({
                     items: state.items.map((item) =>
-                        item.producto.id === productoId ? { ...item, cantidad } : item
+                        generarKey(item) === key ? { ...item, cantidad } : item
                     ),
                 }));
             },
@@ -63,10 +96,12 @@ export const useCarrito = create<CarritoStore>()(
 
             totalPrecio: () => {
                 return get().items.reduce(
-                    (acc, item) => acc + item.producto.precio * item.cantidad,
+                    (acc, item) => acc + item.precio_final * item.cantidad,
                     0
                 );
             },
+
+            getKey: (item: CarritoItem) => generarKey(item),
         }),
         { name: 'nube-alta-cafe-carrito' }
     )

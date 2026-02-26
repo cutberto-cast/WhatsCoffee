@@ -20,7 +20,7 @@ export function CategoriasNav({
                 <button
                     onClick={() => onSeleccionar(null)}
                     className={`h-12 p-2 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all duration-200 ${categoriaActiva === null
-                        ? 'bg-[#4A2C2A] text-white shadow-lg'
+                        ? 'bg-[var(--color-primario)] text-white shadow-lg'
                         : 'bg-white text-cafe-700 hover:bg-cafe-100 border border-cafe-200'
                         }`}
                     aria-pressed={categoriaActiva === null}
@@ -33,7 +33,7 @@ export function CategoriasNav({
                         key={categoria.id}
                         onClick={() => onSeleccionar(categoria.id)}
                         className={`h-12 p-2 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all duration-200 text-center ${categoriaActiva === categoria.id
-                            ? 'bg-[#4A2C2A] text-white shadow-lg'
+                            ? 'bg-[var(--color-primario)] text-white shadow-lg'
                             : 'bg-white text-cafe-700 hover:bg-cafe-100 border border-cafe-200'
                             }`}
                         aria-pressed={categoriaActiva === categoria.id}

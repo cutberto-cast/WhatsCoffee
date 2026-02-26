@@ -264,11 +264,11 @@ export default function AdminBannersPage() {
                 </div>
                 <div className="flex flex-col items-center gap-1">
                     <div className="flex items-center gap-3">
-                        <button onClick={abrirConstruir} className="bg-[#4A2C2A] hover:bg-[#3A2220] text-white font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm">
+                        <button onClick={abrirConstruir} className="bg-[var(--color-primario)] hover:bg-[var(--color-primario)]/90 text-white font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm">
                             <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72" /><path d="m14 7 3 3" /><path d="M5 6v4" /><path d="M19 14v4" /><path d="M10 2v2" /><path d="M7 8H3" /><path d="M21 16h-4" /><path d="M11 3H9" /></svg>
                             Construir banner
                         </button>
-                        <button onClick={abrirSubir} className="border border-[#4A2C2A] text-[#4A2C2A] hover:bg-amber-50 font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm bg-transparent">
+                        <button onClick={abrirSubir} className="border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-amber-50 font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm bg-transparent">
                             <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>
                             Subir banner
                         </button>
@@ -481,7 +481,7 @@ export default function AdminBannersPage() {
                             <button
                                 onClick={handleGuardar}
                                 disabled={guardando || (tipoFormulario === 'construir' && !form.titulo) || (tipoFormulario === 'subir' && !form.imagen_fondo_completo_url)}
-                                className="flex-1 px-4 py-2.5 bg-[#4A2C2A] hover:bg-[#3A2220] disabled:opacity-60 flex justify-center text-white rounded-xl text-sm font-semibold shadow-sm transition-colors"
+                                className="flex-1 px-4 py-2.5 bg-[var(--color-primario)] hover:bg-[var(--color-primario)]/90 disabled:opacity-60 flex justify-center text-white rounded-xl text-sm font-semibold shadow-sm transition-colors"
                             >
                                 {guardando ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (editando ? 'Guardar Cambios' : 'Crear Banner')}
                             </button>

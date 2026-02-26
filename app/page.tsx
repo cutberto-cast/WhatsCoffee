@@ -6,20 +6,36 @@ import { BannerHero } from '@/components/menu/BannerHero';
 import { CategoriasNav } from '@/components/menu/CategoriasNav';
 import { ProductoCard } from '@/components/menu/ProductoCard';
 import { ProductoDetalle } from '@/components/menu/ProductoDetalle';
+import { ConfiguradorProducto } from '@/components/menu/ConfiguradorProducto';
 import { BarraNavegacion } from '@/components/menu/BarraNavegacion';
 import { BarraBusqueda } from '@/components/menu/BarraBusqueda';
 import { CarritoVista } from '@/components/carrito/CarritoVista';
 import { CheckoutVista } from '@/components/carrito/CheckoutVista';
 import { createClient } from '@/lib/supabase/client';
-import type { Producto, Categoria, Banner } from '@/types';
+import { useCarrito } from '@/stores/carritoStore';
+import type { Producto, Categoria, Banner, Topping, CarritoItem } from '@/types';
+import type { GrupoConVariantes, ProductoConToppings } from '@/types/variantes';
 
 type Vista = 'home' | 'carrito' | 'checkout';
+
+const ORDEN_CATEGORIAS = [
+  'Bubble Tea',
+  'Bebidas Frías',
+  'Malteadas',
+  'Sodas Italianas',
+  'Bebidas',
+  'Bebidas Calientes',
+  'Alitas',
+  'Salado',
+  'Bar',
+];
 
 export default function HomePage() {
   const [vista, setVista] = useState<Vista>('home');
   const [categoriaActiva, setCategoriaActiva] = useState<string | null>(null);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [productoDetalle, setProductoDetalle] = useState<Producto | null>(null);
+  const [productoConfigurador, setProductoConfigurador] = useState<Producto | null>(null);
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -29,16 +45,23 @@ export default function HomePage() {
   const [nombreNegocio, setNombreNegocio] = useState('Nube Alta Cafe');
   const [cargando, setCargando] = useState(true);
 
+  // Datos de variantes y toppings
+  const [gruposVariantes, setGruposVariantes] = useState<GrupoConVariantes[]>([]);
+  const [productoToppings, setProductoToppings] = useState<ProductoConToppings[]>([]);
+
   const supabase = createClient();
+  const agregarConfigurable = useCarrito((state) => state.agregarConfigurable);
 
   const cargarDatos = useCallback(async () => {
     setCargando(true);
-    const [resCat, resProd, resBan, resConf, resBanProd] = await Promise.all([
+    const [resCat, resProd, resBan, resConf, resBanProd, resGruposVar, resProdTopp] = await Promise.all([
       supabase.from('categorias').select('*').order('orden'),
       supabase.from('productos').select('*').order('creado_en', { ascending: false }),
       supabase.from('banners').select('*').order('orden'),
       supabase.from('configuracion').select('*').limit(1).single(),
-      supabase.from('banner_productos').select('*')
+      supabase.from('banner_productos').select('*'),
+      supabase.from('grupos_variantes').select('*, variantes (*)').order('creado_en'),
+      supabase.from('producto_toppings').select('*, toppings (*)'),
     ]);
 
     if (resCat.data) setCategorias(resCat.data);
@@ -53,6 +76,8 @@ export default function HomePage() {
       });
       setBannerProductos(bp);
     }
+    if (resGruposVar.data) setGruposVariantes(resGruposVar.data as GrupoConVariantes[]);
+    if (resProdTopp.data) setProductoToppings(resProdTopp.data as ProductoConToppings[]);
     setCargando(false);
   }, []);
 
@@ -79,6 +104,23 @@ export default function HomePage() {
     };
   }, [cargarDatos, supabase]);
 
+  // Helpers
+  const getVariantesDeProducto = useCallback(
+    (productoId: string): GrupoConVariantes | null => {
+      return gruposVariantes.find((g) => g.producto_id === productoId) ?? null;
+    },
+    [gruposVariantes]
+  );
+
+  const getToppingsDeProducto = useCallback(
+    (productoId: string): Topping[] => {
+      return productoToppings
+        .filter((pt) => pt.producto_id === productoId)
+        .map((pt) => pt.toppings);
+    },
+    [productoToppings]
+  );
+
   const productosFiltrados = useMemo(() => {
     return productos.filter((producto) => {
       const coincideCategoria =
@@ -94,9 +136,38 @@ export default function HomePage() {
     });
   }, [categoriaActiva, terminoBusqueda, productos, bannerFiltroActivo, bannerProductos]);
 
+  const productosEspecialidades = useMemo(() =>
+    productos.filter(p =>
+      p.esta_disponible &&
+      (p.tiene_variantes || p.acepta_toppings)
+    ),
+    [productos]
+  );
+
+
+  const categoriasOrdenadas = useMemo(() =>
+    [...categorias].sort((a, b) => {
+      const ia = ORDEN_CATEGORIAS.indexOf(a.nombre);
+      const ib = ORDEN_CATEGORIAS.indexOf(b.nombre);
+      const posA = ia === -1 ? 999 : ia;
+      const posB = ib === -1 ? 999 : ib;
+      return posA - posB;
+    }),
+    [categorias]
+  );
+
   const handleNavegar = (nuevaVista: Vista) => {
     setVista(nuevaVista);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleAbrirConfigurador = (producto: Producto) => {
+    setProductoConfigurador(producto);
+  };
+
+  const handleConfirmarConfiguracion = (item: CarritoItem) => {
+    agregarConfigurable(item);
+    setProductoConfigurador(null);
   };
 
   if (cargando) {
@@ -108,16 +179,27 @@ export default function HomePage() {
     );
   }
 
+  const renderProductoCard = (producto: Producto) => (
+    <ProductoCard
+      key={producto.id}
+      producto={producto}
+      onVerDetalle={setProductoDetalle}
+      grupo_variantes={getVariantesDeProducto(producto.id)}
+      toppings_disponibles={getToppingsDeProducto(producto.id)}
+      onAbrirConfigurador={handleAbrirConfigurador}
+    />
+  );
+
   return (
     <div className="min-h-screen bg-white pb-20">
       <div className="max-w-lg mx-auto px-4">
         {/* HEADER SIEMPRE VISIBLE */}
-        <header className={`flex flex-col gap-2 relative bg-[#4A2C2A] px-4 pt-3 shadow-xl -mx-4 sm:mx-0 sm:rounded-b-3xl sm:rounded-none rounded-b-3xl mb-5 ${vista === 'home' ? 'pb-4' : 'pb-3'}`}>
+        <header className={`flex flex-col gap-2 relative bg-[var(--color-primario)] px-4 pt-3 shadow-xl -mx-4 sm:mx-0 sm:rounded-b-3xl sm:rounded-none rounded-b-3xl mb-5 ${vista === 'home' ? 'pb-4' : 'pb-3'}`}>
           <div className="flex items-center justify-between z-10 relative w-full">
             <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">{nombreNegocio}</h1>
             <div className="relative h-11 w-11 sm:h-12 sm:w-12 shrink-0 bg-white rounded-full shadow-sm overflow-hidden flex items-center justify-center">
               <Image
-                src="/images/nubelogo.png"
+                src="/images/logo-nuve-alta.png"
                 alt="Nube Alta Cafe"
                 fill
                 className="object-contain p-1.5"
@@ -171,19 +253,49 @@ export default function HomePage() {
                 if (mostrarAgrupadoPorCategoria) {
                   return (
                     <>
-                      {categorias.map((categoria) => {
-                        const productosDeCategoria = productos
-                          .filter(p => p.categoria_id === categoria.id && p.esta_disponible);
+                      {/* BLOQUE A — Especialidades */}
+                      {productosEspecialidades.length > 0 && (
+                        <section className="mb-8">
+                          <div className="flex items-center justify-between mb-3">
+                            <h2 className="text-lg font-bold text-cafe-900">
+                              Especialidades
+                            </h2>
+                            <span className="text-xs text-cafe-400 bg-cafe-50 px-2 py-1 rounded-full font-medium">
+                              Arma tu pedido
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                            {productosEspecialidades.map((producto) => (
+                              <ProductoCard
+                                key={producto.id}
+                                producto={producto}
+                                onVerDetalle={setProductoDetalle}
+                                onAbrirConfigurador={handleAbrirConfigurador}
+                                grupo_variantes={getVariantesDeProducto(producto.id)}
+                                toppings_disponibles={getToppingsDeProducto(producto.id)}
+                              />
+                            ))}
+                          </div>
+                        </section>
+                      )}
 
-                        if (productosDeCategoria.length === 0) return null;
+                      {/* BLOQUE B — Simples por afinidad */}
+                      {categoriasOrdenadas.map((categoria) => {
+                        const productosSimplesCat = productos.filter(p =>
+                          p.categoria_id === categoria.id &&
+                          p.esta_disponible &&
+                          !p.tiene_variantes &&
+                          !p.acepta_toppings
+                        );
+                        if (productosSimplesCat.length === 0) return null;
 
-                        const mostrarVerMas = productosDeCategoria.length > 4;
-                        const productosAMostrar = productosDeCategoria.slice(0, 4);
+                        const mostrarVerMas = productosSimplesCat.length > 4;
+                        const productosAMostrar = productosSimplesCat.slice(0, 4);
 
                         return (
                           <section key={categoria.id} className="mb-6">
                             <div className="flex items-center justify-between mb-3">
-                              <h2 className="text-lg font-bold text-cafe-900 sm:text-xl">
+                              <h2 className="text-lg font-bold text-cafe-900">
                                 {categoria.nombre}
                               </h2>
                               {mostrarVerMas && (
@@ -192,7 +304,7 @@ export default function HomePage() {
                                     setCategoriaActiva(categoria.id);
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                   }}
-                                  className="text-sm font-semibold text-[#4A2C2A] hover:underline"
+                                  className="text-sm font-semibold text-[var(--color-primario)] hover:underline"
                                 >
                                   Ver más
                                 </button>
@@ -204,6 +316,9 @@ export default function HomePage() {
                                   key={producto.id}
                                   producto={producto}
                                   onVerDetalle={setProductoDetalle}
+                                  onAbrirConfigurador={handleAbrirConfigurador}
+                                  grupo_variantes={null}
+                                  toppings_disponibles={[]}
                                 />
                               ))}
                             </div>
@@ -230,9 +345,7 @@ export default function HomePage() {
                       <div className="text-center py-12"><p className="text-cafe-400 text-sm">No se encontraron productos</p></div>
                     ) : (
                       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                        {productosFiltrados.map((producto) => (
-                          <ProductoCard key={producto.id} producto={producto} onVerDetalle={setProductoDetalle} />
-                        ))}
+                        {productosFiltrados.map(renderProductoCard)}
                       </div>
                     )}
                   </>
@@ -255,6 +368,16 @@ export default function HomePage() {
 
       {productoDetalle && (
         <ProductoDetalle producto={productoDetalle} onCerrar={() => setProductoDetalle(null)} />
+      )}
+
+      {productoConfigurador && (
+        <ConfiguradorProducto
+          producto={productoConfigurador}
+          grupo_variantes={getVariantesDeProducto(productoConfigurador.id)}
+          toppings_disponibles={getToppingsDeProducto(productoConfigurador.id)}
+          onCerrar={() => setProductoConfigurador(null)}
+          onConfirmar={handleConfirmarConfiguracion}
+        />
       )}
     </div>
   );

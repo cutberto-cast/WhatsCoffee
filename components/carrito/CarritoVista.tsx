@@ -13,10 +13,11 @@ interface CarritoVistaProps {
 
 export function CarritoVista({ onIrCheckout, onSeguirComprando }: CarritoVistaProps) {
     const items = useCarrito((state) => state.items);
-    const actualizarCantidad = useCarrito((state) => state.actualizarCantidad);
-    const eliminar = useCarrito((state) => state.eliminar);
+    const actualizarCantidadPorKey = useCarrito((state) => state.actualizarCantidadPorKey);
+    const eliminarPorKey = useCarrito((state) => state.eliminarPorKey);
     const totalPrecio = useCarrito((state) => state.totalPrecio);
     const limpiar = useCarrito((state) => state.limpiar);
+    const getKey = useCarrito((state) => state.getKey);
 
     // Hydration safe
     const [itemsCliente, setItemsCliente] = useState<CarritoItem[]>([]);
@@ -77,65 +78,88 @@ export function CarritoVista({ onIrCheckout, onSeguirComprando }: CarritoVistaPr
 
             {/* Lista de items */}
             <div className="flex-1 overflow-y-auto space-y-3 pb-4">
-                {itemsCliente.map((item) => (
-                    <div
-                        key={item.producto.id}
-                        className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-sm animate-scale-in"
-                    >
-                        {/* Imagen */}
-                        <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-cafe-100">
-                            <Image
-                                src={item.producto.imagen_url}
-                                alt={item.producto.nombre}
-                                fill
-                                className="object-cover"
-                                sizes="80px"
-                            />
-                        </div>
+                {itemsCliente.map((item) => {
+                    const key = getKey(item);
+                    return (
+                        <div
+                            key={key}
+                            className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-sm animate-scale-in"
+                        >
+                            {/* Imagen */}
+                            <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-cafe-100">
+                                <Image
+                                    src={item.producto.imagen_url}
+                                    alt={item.producto.nombre}
+                                    fill
+                                    className="object-cover"
+                                    sizes="80px"
+                                />
+                            </div>
 
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-cafe-800 text-sm leading-tight truncate">
-                                {item.producto.nombre}
-                            </h4>
-                            <p className="text-cafe-500 font-bold text-base mt-1">
-                                {formatearPrecio(item.producto.precio * item.cantidad)}
-                            </p>
-                        </div>
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-cafe-800 text-sm leading-tight truncate">
+                                    {item.producto.nombre}
+                                </h4>
 
-                        {/* Controles */}
-                        <div className="flex flex-col items-end gap-2">
-                            <button
-                                onClick={() => eliminar(item.producto.id)}
-                                className="text-cafe-300 hover:text-red-400 transition-colors p-1"
-                                aria-label={`Eliminar ${item.producto.nombre}`}
-                            >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                            <div className="flex items-center gap-2 bg-cafe-50 rounded-full px-1.5 py-0.5">
-                                <button
-                                    onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
-                                    className="w-7 h-7 rounded-full bg-white text-cafe-600 flex items-center justify-center text-sm font-bold hover:bg-cafe-100 active:scale-90 transition-all shadow-sm"
-                                    aria-label="Reducir cantidad"
-                                >
-                                    −
-                                </button>
-                                <span className="text-cafe-800 font-semibold text-sm w-5 text-center">
-                                    {item.cantidad}
+                                {/* Variante elegida */}
+                                {item.variante_elegida && (
+                                    <span className="text-xs text-gray-500">
+                                        · {item.variante_elegida.nombre}
+                                    </span>
+                                )}
+
+                                {/* Toppings elegidos */}
+                                {item.toppings_elegidos && item.toppings_elegidos.length > 0 && (
+                                    <p className="text-xs text-gray-500 truncate">
+                                        · {item.toppings_elegidos.map((t) => t.nombre).join(', ')}
+                                    </p>
+                                )}
+
+                                {/* Precio unitario */}
+                                <span className="text-xs text-cafe-400">
+                                    {formatearPrecio(item.precio_final)} c/u
                                 </span>
+
+                                <p className="text-cafe-500 font-bold text-base mt-0.5">
+                                    {formatearPrecio(item.precio_final * item.cantidad)}
+                                </p>
+                            </div>
+
+                            {/* Controles */}
+                            <div className="flex flex-col items-end gap-2">
                                 <button
-                                    onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
-                                    className="w-7 h-7 rounded-full bg-white text-cafe-600 flex items-center justify-center text-sm font-bold hover:bg-cafe-100 active:scale-90 transition-all shadow-sm"
-                                    aria-label="Aumentar cantidad"
+                                    onClick={() => eliminarPorKey(key)}
+                                    className="text-cafe-300 hover:text-red-400 transition-colors p-1"
+                                    aria-label={`Eliminar ${item.producto.nombre}`}
                                 >
-                                    +
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
                                 </button>
+                                <div className="flex items-center gap-2 bg-cafe-50 rounded-full px-1.5 py-0.5">
+                                    <button
+                                        onClick={() => actualizarCantidadPorKey(key, item.cantidad - 1)}
+                                        className="w-7 h-7 rounded-full bg-white text-cafe-600 flex items-center justify-center text-sm font-bold hover:bg-cafe-100 active:scale-90 transition-all shadow-sm"
+                                        aria-label="Reducir cantidad"
+                                    >
+                                        −
+                                    </button>
+                                    <span className="text-cafe-800 font-semibold text-sm w-5 text-center">
+                                        {item.cantidad}
+                                    </span>
+                                    <button
+                                        onClick={() => actualizarCantidadPorKey(key, item.cantidad + 1)}
+                                        className="w-7 h-7 rounded-full bg-white text-cafe-600 flex items-center justify-center text-sm font-bold hover:bg-cafe-100 active:scale-90 transition-all shadow-sm"
+                                        aria-label="Aumentar cantidad"
+                                    >
+                                        +
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Resumen y CTA */}

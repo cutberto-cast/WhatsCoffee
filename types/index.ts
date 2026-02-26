@@ -12,12 +12,37 @@ export interface Producto {
     id: string;
     nombre: string;
     descripcion: string;
-    precio: number;
+    precio: number | null;
     imagen_url: string;
     categoria_id: string;
     esta_disponible: boolean;
     creado_en: string;
     actualizado_en: string;
+    tiene_variantes: boolean;
+    acepta_toppings: boolean;
+    precio_topping_extra: number;
+    toppings_gratis: number;
+}
+
+export interface GrupoVariantes {
+    id: string;
+    producto_id: string;
+    nombre: string;
+}
+
+export interface Variante {
+    id: string;
+    grupo_id: string;
+    nombre: string;
+    precio: number;
+    disponible: boolean;
+    orden: number;
+}
+
+export interface Topping {
+    id: string;
+    nombre: string;
+    activo: boolean;
 }
 
 export interface Banner {
@@ -53,6 +78,9 @@ export interface Configuracion {
 export interface CarritoItem {
     producto: Producto;
     cantidad: number;
+    variante_elegida?: Variante | null;
+    toppings_elegidos?: Topping[];
+    precio_final: number;
 }
 
 export interface DatosPedido {

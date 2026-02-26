@@ -110,7 +110,7 @@ export default function AdminDashboard() {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-gray-900 truncate">{producto.nombre}</p>
-                                <p className="text-xs text-gray-500">${producto.precio}</p>
+                                <p className="text-xs text-gray-500">{producto.tiene_variantes ? 'Variable' : `$${producto.precio ?? 0}`}</p>
                             </div>
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${producto.esta_disponible
                                 ? 'bg-green-100 text-green-700'

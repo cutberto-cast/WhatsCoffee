@@ -1,27 +1,49 @@
 'use client';
 
 import Image from 'next/image';
-import type { Producto } from '@/types';
+import type { Producto, Topping } from '@/types';
+import type { GrupoConVariantes } from '@/types/variantes';
 import { formatearPrecio } from '@/lib/utils/formatearPrecio';
 import { useCarrito } from '@/stores/carritoStore';
 
 interface ProductoCardProps {
     producto: Producto;
     onVerDetalle: (producto: Producto) => void;
+    grupo_variantes?: GrupoConVariantes | null;
+    toppings_disponibles?: Topping[];
+    onAbrirConfigurador: (producto: Producto) => void;
 }
 
-export function ProductoCard({ producto, onVerDetalle }: ProductoCardProps) {
-    const agregar = useCarrito((state) => state.agregar);
+export function ProductoCard({
+    producto,
+    onVerDetalle,
+    onAbrirConfigurador,
+}: ProductoCardProps) {
+    const agregarSimple = useCarrito((state) => state.agregarSimple);
 
-    const handleAgregar = (e: React.MouseEvent) => {
+    const esConfigurable = producto.tiene_variantes || producto.acepta_toppings;
+
+    const handleBotonAgregar = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!producto.esta_disponible) return;
-        agregar(producto);
+        if (esConfigurable) {
+            onAbrirConfigurador(producto);
+        } else {
+            agregarSimple(producto);
+        }
+    };
+
+    const handleCardClick = () => {
+        if (esConfigurable) {
+            onAbrirConfigurador(producto);
+        } else {
+            onVerDetalle(producto);
+        }
     };
 
     return (
         <article
-            onClick={() => onVerDetalle(producto)}
+            onClick={handleCardClick}
             className={`group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer animate-scale-in ${!producto.esta_disponible ? 'opacity-60' : ''
                 }`}
             role="button"
@@ -51,22 +73,12 @@ export function ProductoCard({ producto, onVerDetalle }: ProductoCardProps) {
                 {/* Botón agregar al carrito */}
                 {producto.esta_disponible && (
                     <button
-                        onClick={handleAgregar}
-                        className="absolute bottom-2 right-2 bg-[#4A2C2A] text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg hover:bg-cafe-800 active:scale-90 transition-all z-10"
+                        onClick={handleBotonAgregar}
+                        className="absolute bottom-2 right-2 bg-[var(--color-primario)] text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg hover:bg-cafe-800 active:scale-90 transition-all z-10"
                         aria-label={`Agregar ${producto.nombre} al carrito`}
                     >
-                        <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 4v16m8-8H4"
-                            />
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                     </button>
                 )}
@@ -79,9 +91,16 @@ export function ProductoCard({ producto, onVerDetalle }: ProductoCardProps) {
                 </h3>
                 <div className="flex items-center justify-between mt-2">
                     <span className="text-cafe-600 font-bold text-base sm:text-lg">
-                        {formatearPrecio(producto.precio)}
+                        {producto.tiene_variantes
+                            ? 'Desde...'
+                            : formatearPrecio(producto.precio ?? 0)}
                     </span>
                 </div>
+                {esConfigurable && (
+                    <span className="inline-block mt-1 text-xs text-cafe-500 bg-cafe-50 px-2 py-0.5 rounded-full">
+                        Personalizable
+                    </span>
+                )}
             </div>
         </article>
     );

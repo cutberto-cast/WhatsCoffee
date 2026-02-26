@@ -13,7 +13,7 @@ export default function AdminConfiguracionPage() {
         nombre_negocio: '',
         telefono_whatsapp: '',
         logo_url: '',
-        color_primario: '#C68B59'
+        color_primario: '#4A2C2A'
     });
 
     const supabase = createClient();
@@ -30,6 +30,15 @@ export default function AdminConfiguracionPage() {
     useEffect(() => {
         cargarDatos();
     }, [cargarDatos]);
+
+    useEffect(() => {
+        if (form.color_primario) {
+            document.documentElement.style.setProperty(
+                '--color-primario',
+                form.color_primario
+            );
+        }
+    }, [form.color_primario]);
 
     const handleGuardar = async () => {
         if (!form.nombre_negocio || !form.telefono_whatsapp) return;
@@ -48,6 +57,10 @@ export default function AdminConfiguracionPage() {
 
         if (!result.error) {
             setExito(true);
+            document.documentElement.style.setProperty(
+                '--color-primario',
+                form.color_primario
+            );
             setTimeout(() => setExito(false), 3000);
         }
 
@@ -99,7 +112,7 @@ export default function AdminConfiguracionPage() {
                                 <p className="text-gray-900 font-medium">{form.color_primario}</p>
                                 <p className="text-gray-400 text-xs">Utilizado en tema oscuro/claro de app.</p>
                             </div>
-                            <button onClick={() => setForm({ ...form, color_primario: '#C68B59' })} className="ml-auto text-cafe-500 hover:text-cafe-600 text-sm font-medium px-3 py-1.5 bg-cafe-50 rounded-lg">Restaurar Original</button>
+                            <button onClick={() => setForm({ ...form, color_primario: '#4A2C2A' })} className="ml-auto text-cafe-500 hover:text-cafe-600 text-sm font-medium px-3 py-1.5 bg-cafe-50 rounded-lg">Restaurar Original</button>
                         </div>
                     </div>
                 </div>

@@ -4,11 +4,18 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { formatearPrecio } from '@/lib/utils/formatearPrecio';
-import type { Producto, Categoria } from '@/types';
+import type { Producto, Categoria, Topping, GrupoVariantes, Variante } from '@/types';
+
+interface VarianteForm {
+    tempId: string;
+    nombre: string;
+    precio: string;
+}
 
 export default function AdminProductosPage() {
     const [productos, setProductos] = useState<Producto[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
+    const [todosLosToppings, setTodosLosToppings] = useState<Topping[]>([]);
     const [cargando, setCargando] = useState(true);
 
     const [modalAbierto, setModalAbierto] = useState(false);
@@ -26,19 +33,30 @@ export default function AdminProductosPage() {
         imagen_url: '',
         categoria_id: '',
         esta_disponible: true,
+        tiene_variantes: false,
+        acepta_toppings: false,
+        precio_topping_extra: '0',
+        toppings_gratis: '0',
+        toppings_seleccionados: [] as string[],
     });
+
+    // Estado para el constructor de variantes
+    const [nombreGrupo, setNombreGrupo] = useState('');
+    const [variantesForm, setVariantesForm] = useState<VarianteForm[]>([]);
 
     const supabase = createClient();
 
     const cargarDatos = useCallback(async () => {
         setCargando(true);
-        const [resProd, resCat] = await Promise.all([
+        const [resProd, resCat, resTopp] = await Promise.all([
             supabase.from('productos').select('*').order('creado_en', { ascending: false }),
             supabase.from('categorias').select('*').order('orden'),
+            supabase.from('toppings').select('*').eq('activo', true).order('nombre'),
         ]);
 
         if (resProd.data) setProductos(resProd.data);
         if (resCat.data) setCategorias(resCat.data);
+        if (resTopp.data) setTodosLosToppings(resTopp.data);
         setCargando(false);
     }, [supabase]);
 
@@ -61,20 +79,80 @@ export default function AdminProductosPage() {
             imagen_url: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=400&fit=crop',
             categoria_id: categorias[0]?.id ?? '',
             esta_disponible: true,
+            tiene_variantes: false,
+            acepta_toppings: false,
+            precio_topping_extra: '0',
+            toppings_gratis: '0',
+            toppings_seleccionados: [],
         });
+        setNombreGrupo('');
+        setVariantesForm([]);
         setModalAbierto(true);
     };
 
-    const abrirEditar = (producto: Producto) => {
+    const abrirEditar = async (producto: Producto) => {
         setProductoEditando(producto);
         setForm({
             nombre: producto.nombre,
             descripcion: producto.descripcion,
-            precio: producto.precio.toString(),
+            precio: producto.precio?.toString() ?? '',
             imagen_url: producto.imagen_url,
             categoria_id: producto.categoria_id,
             esta_disponible: producto.esta_disponible,
+            tiene_variantes: producto.tiene_variantes,
+            acepta_toppings: producto.acepta_toppings,
+            precio_topping_extra: (producto.precio_topping_extra ?? 0).toString(),
+            toppings_gratis: (producto.toppings_gratis ?? 0).toString(),
+            toppings_seleccionados: [],
         });
+        setNombreGrupo('');
+        setVariantesForm([]);
+
+        // Cargar variantes del producto
+        if (producto.tiene_variantes) {
+            const { data: grupos } = await supabase
+                .from('grupos_variantes')
+                .select('*')
+                .eq('producto_id', producto.id)
+                .limit(1);
+
+            if (grupos && grupos.length > 0) {
+                const grupo = grupos[0] as GrupoVariantes;
+                setNombreGrupo(grupo.nombre);
+
+                const { data: vars } = await supabase
+                    .from('variantes')
+                    .select('*')
+                    .eq('grupo_id', grupo.id)
+                    .order('orden');
+
+                if (vars) {
+                    setVariantesForm(
+                        vars.map((v: Variante) => ({
+                            tempId: v.id,
+                            nombre: v.nombre,
+                            precio: v.precio.toString(),
+                        }))
+                    );
+                }
+            }
+        }
+
+        // Cargar toppings vinculados
+        if (producto.acepta_toppings) {
+            const { data: pt } = await supabase
+                .from('producto_toppings')
+                .select('topping_id')
+                .eq('producto_id', producto.id);
+
+            if (pt) {
+                setForm((prev) => ({
+                    ...prev,
+                    toppings_seleccionados: pt.map((r: { topping_id: string }) => r.topping_id),
+                }));
+            }
+        }
+
         setModalAbierto(true);
     };
 
@@ -88,7 +166,7 @@ export default function AdminProductosPage() {
         setSubiendoImagen(true);
 
         try {
-            const { data, error } = await supabase.storage
+            const { error } = await supabase.storage
                 .from('imagenes')
                 .upload(`productos/${nombreArchivo}`, archivo, { cacheControl: '3600', upsert: false });
 
@@ -107,29 +185,120 @@ export default function AdminProductosPage() {
         }
     };
 
+    const agregarVariante = () => {
+        setVariantesForm([
+            ...variantesForm,
+            { tempId: `temp-${Date.now()}`, nombre: '', precio: '' },
+        ]);
+    };
+
+    const eliminarVariante = (tempId: string) => {
+        setVariantesForm(variantesForm.filter((v) => v.tempId !== tempId));
+    };
+
+    const actualizarVariante = (tempId: string, campo: 'nombre' | 'precio', valor: string) => {
+        setVariantesForm(
+            variantesForm.map((v) =>
+                v.tempId === tempId ? { ...v, [campo]: valor } : v
+            )
+        );
+    };
+
     const handleGuardar = async () => {
-        if (!form.nombre || !form.precio || !form.categoria_id) return;
+        if (!form.nombre || !form.categoria_id) return;
+        if (!form.tiene_variantes && !form.precio) return;
+        if (form.tiene_variantes && variantesForm.length === 0) {
+            alert('Agrega al menos una variante.');
+            return;
+        }
+        if (form.tiene_variantes && !nombreGrupo.trim()) {
+            alert('Define el nombre del grupo de variantes.');
+            return;
+        }
+
         setGuardando(true);
 
         const datos = {
             nombre: form.nombre,
             descripcion: form.descripcion,
-            precio: parseFloat(form.precio),
+            precio: form.tiene_variantes ? null : parseFloat(form.precio),
             imagen_url: form.imagen_url,
             categoria_id: form.categoria_id,
             esta_disponible: form.esta_disponible,
+            tiene_variantes: form.tiene_variantes,
+            acepta_toppings: form.acepta_toppings,
+            precio_topping_extra: form.acepta_toppings ? parseFloat(form.precio_topping_extra) || 0 : 0,
+            toppings_gratis: form.acepta_toppings ? parseInt(form.toppings_gratis) || 0 : 0,
         };
 
-        if (productoEditando) {
-            const { error } = await supabase.from('productos').update(datos).eq('id', productoEditando.id);
-            if (!error) {
-                setProductos(productos.map(p => p.id === productoEditando.id ? { ...p, ...datos } : p));
+        let productoId = productoEditando?.id;
+
+        try {
+            if (productoEditando) {
+                const { error } = await supabase.from('productos').update(datos).eq('id', productoEditando.id);
+                if (error) throw error;
+                setProductos(productos.map((p) => p.id === productoEditando.id ? { ...p, ...datos } as Producto : p));
+            } else {
+                const { data, error } = await supabase.from('productos').insert(datos).select().single();
+                if (error) throw error;
+                if (data) {
+                    productoId = data.id;
+                    setProductos([data, ...productos]);
+                }
             }
-        } else {
-            const { data, error } = await supabase.from('productos').insert(datos).select().single();
-            if (!error && data) {
-                setProductos([data, ...productos]);
+
+            if (!productoId) throw new Error('No se obtuvo el ID del producto');
+
+            // --- Guardar variantes ---
+            if (form.tiene_variantes) {
+                // Eliminar grupos anteriores (CASCADE elimina variantes hijas)
+                await supabase.from('grupos_variantes').delete().eq('producto_id', productoId);
+
+                // Insertar nuevo grupo
+                const { data: grupo, error: grupoErr } = await supabase
+                    .from('grupos_variantes')
+                    .insert({ producto_id: productoId, nombre: nombreGrupo.trim() })
+                    .select()
+                    .single();
+
+                if (grupoErr) throw grupoErr;
+
+                if (grupo) {
+                    // Insertar variantes
+                    const variantesInsert = variantesForm
+                        .filter((v) => v.nombre.trim() && v.precio)
+                        .map((v, idx) => ({
+                            grupo_id: grupo.id,
+                            nombre: v.nombre.trim(),
+                            precio: parseFloat(v.precio),
+                            orden: idx,
+                        }));
+
+                    if (variantesInsert.length > 0) {
+                        const { error: varErr } = await supabase.from('variantes').insert(variantesInsert);
+                        if (varErr) throw varErr;
+                    }
+                }
+            } else {
+                // Limpiar variantes si ya no tiene
+                await supabase.from('grupos_variantes').delete().eq('producto_id', productoId);
             }
+
+            // --- Guardar toppings vinculados ---
+            // Siempre limpiar primero
+            await supabase.from('producto_toppings').delete().eq('producto_id', productoId);
+
+            if (form.acepta_toppings && form.toppings_seleccionados.length > 0) {
+                const toppingsInsert = form.toppings_seleccionados.map((tid) => ({
+                    producto_id: productoId,
+                    topping_id: tid,
+                }));
+                const { error: tErr } = await supabase.from('producto_toppings').insert(toppingsInsert);
+                if (tErr) throw tErr;
+            }
+        } catch (err) {
+            console.error('Error al guardar:', err);
+            alert('Error al guardar el producto. Revisa la consola.');
         }
 
         setGuardando(false);
@@ -139,25 +308,30 @@ export default function AdminProductosPage() {
     const handleEliminar = async (id: string) => {
         const { error } = await supabase.from('productos').delete().eq('id', id);
         if (!error) {
-            setProductos(productos.filter(p => p.id !== id));
+            setProductos(productos.filter((p) => p.id !== id));
         }
         setConfirmarEliminar(null);
     };
 
     const toggleDisponibilidad = async (producto: Producto) => {
-        // Actualización optimista
         const nuevoEstado = !producto.esta_disponible;
-        setProductos(productos.map(p => p.id === producto.id ? { ...p, esta_disponible: nuevoEstado } : p));
+        setProductos(productos.map((p) => p.id === producto.id ? { ...p, esta_disponible: nuevoEstado } : p));
 
         const { error } = await supabase.from('productos').update({ esta_disponible: nuevoEstado }).eq('id', producto.id);
         if (error) {
-            // Revertir si hay error
-            setProductos(productos.map(p => p.id === producto.id ? { ...p, esta_disponible: producto.esta_disponible } : p));
+            setProductos(productos.map((p) => p.id === producto.id ? { ...p, esta_disponible: producto.esta_disponible } : p));
         }
     };
 
     const getNombreCategoria = (id: string): string => {
         return categorias.find((c) => c.id === id)?.nombre ?? 'Sin categoría';
+    };
+
+    const getTipoProducto = (producto: Producto): string => {
+        const partes: string[] = [];
+        if (producto.tiene_variantes) partes.push('Variantes');
+        if (producto.acepta_toppings) partes.push('Toppings');
+        return partes.length > 0 ? partes.join(' + ') : 'Simple';
     };
 
     if (cargando) {
@@ -185,6 +359,7 @@ export default function AdminProductosPage() {
                 </select>
             </div>
 
+            {/* Tabla de productos */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
@@ -193,6 +368,7 @@ export default function AdminProductosPage() {
                                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Producto</th>
                                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Categoría</th>
                                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio</th>
+                                <th className="text-center px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Tipo</th>
                                 <th className="text-center px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
                                 <th className="text-right px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                             </tr>
@@ -218,7 +394,19 @@ export default function AdminProductosPage() {
                                     <td className="px-5 py-3 hidden sm:table-cell">
                                         <span className="text-xs bg-cafe-50 text-cafe-600 px-2.5 py-1 rounded-full font-medium">{getNombreCategoria(producto.categoria_id)}</span>
                                     </td>
-                                    <td className="px-5 py-3"><span className="font-semibold text-gray-900 text-sm">{formatearPrecio(producto.precio)}</span></td>
+                                    <td className="px-5 py-3">
+                                        <span className="font-semibold text-gray-900 text-sm">
+                                            {producto.tiene_variantes ? 'Variable' : formatearPrecio(producto.precio ?? 0)}
+                                        </span>
+                                    </td>
+                                    <td className="px-5 py-3 text-center hidden sm:table-cell">
+                                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${producto.tiene_variantes || producto.acepta_toppings
+                                            ? 'bg-purple-50 text-purple-700'
+                                            : 'bg-gray-50 text-gray-500'
+                                            }`}>
+                                            {getTipoProducto(producto)}
+                                        </span>
+                                    </td>
                                     <td className="px-5 py-3 text-center">
                                         <button
                                             onClick={() => toggleDisponibilidad(producto)}
@@ -241,32 +429,214 @@ export default function AdminProductosPage() {
                 {productosFiltrados.length === 0 && <div className="text-center py-12"><p className="text-gray-400 text-sm">No se encontraron productos</p></div>}
             </div>
 
+            {/* ═══════ MODAL CREAR/EDITAR ═══════ */}
             {modalAbierto && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModalAbierto(false)} />
                     <div className="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
-                        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
                             <h3 className="text-lg font-semibold text-gray-900">{productoEditando ? 'Editar Producto' : 'Nuevo Producto'}</h3>
                             <button onClick={() => setModalAbierto(false)} className="text-gray-400 hover:text-gray-600 transition-colors"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
                         </div>
                         <div className="p-6 space-y-4">
+                            {/* Vista previa de imagen */}
                             {form.imagen_url && (
                                 <div className="relative w-full h-40 rounded-xl overflow-hidden bg-gray-100">
                                     <Image src={form.imagen_url} alt="Preview" fill className="object-cover" sizes="480px" />
                                 </div>
                             )}
+
+                            {/* Nombre */}
                             <div><label className="block text-xs font-medium text-gray-500 mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" /></div>
+
+                            {/* Descripción */}
                             <div><label className="block text-xs font-medium text-gray-500 mb-1">Descripción</label><textarea value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400 resize-none" /></div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-xs font-medium text-gray-500 mb-1">Precio (MXN) *</label><input type="number" value={form.precio} onChange={(e) => setForm({ ...form, precio: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" min="0" step="0.5" /></div>
-                                <div><label className="block text-xs font-medium text-gray-500 mb-1">Categoría *</label>
-                                    <select value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400">
-                                        <option value="" disabled>Seleccione categoría</option>
-                                        {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                                    </select>
-                                </div>
+
+                            {/* Categoría */}
+                            <div><label className="block text-xs font-medium text-gray-500 mb-1">Categoría *</label>
+                                <select value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400">
+                                    <option value="" disabled>Seleccione categoría</option>
+                                    {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                                </select>
                             </div>
 
+                            {/* ══ SECCIÓN PRECIO ══ */}
+                            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                                <label className="block text-xs font-semibold text-gray-700">Tipo de precio</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setForm({ ...form, tiene_variantes: false })}
+                                        className={`p-3 rounded-xl border-2 text-left transition-all ${!form.tiene_variantes
+                                            ? 'border-cafe-600 bg-white ring-2 ring-cafe-600/20'
+                                            : 'border-gray-200 bg-white hover:border-cafe-300'
+                                            }`}
+                                    >
+                                        <p className="text-sm font-semibold text-gray-800">Precio fijo</p>
+                                        <p className="text-xs text-gray-400 mt-0.5">Un solo precio para este producto</p>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setForm({ ...form, tiene_variantes: true });
+                                            if (variantesForm.length === 0) {
+                                                agregarVariante();
+                                            }
+                                        }}
+                                        className={`p-3 rounded-xl border-2 text-left transition-all ${form.tiene_variantes
+                                            ? 'border-cafe-600 bg-white ring-2 ring-cafe-600/20'
+                                            : 'border-gray-200 bg-white hover:border-cafe-300'
+                                            }`}
+                                    >
+                                        <p className="text-sm font-semibold text-gray-800">Tiene variantes</p>
+                                        <p className="text-xs text-gray-400 mt-0.5">El precio depende de la opción elegida</p>
+                                    </button>
+                                </div>
+
+                                {/* Campo de precio fijo */}
+                                {!form.tiene_variantes && (
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Precio (MXN) *</label>
+                                        <input type="number" value={form.precio} onChange={(e) => setForm({ ...form, precio: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400" min="0" step="0.5" />
+                                    </div>
+                                )}
+
+                                {/* Constructor de variantes */}
+                                {form.tiene_variantes && (
+                                    <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-white">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">Nombre del grupo de variantes *</label>
+                                            <input
+                                                type="text"
+                                                value={nombreGrupo}
+                                                onChange={(e) => setNombreGrupo(e.target.value)}
+                                                placeholder="Ej: Tamaño, Número de sabores"
+                                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            {variantesForm.map((v) => (
+                                                <div key={v.tempId} className="flex gap-2 items-center">
+                                                    <input
+                                                        type="text"
+                                                        value={v.nombre}
+                                                        onChange={(e) => actualizarVariante(v.tempId, 'nombre', e.target.value)}
+                                                        placeholder="Nombre (Ej: Grande)"
+                                                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        value={v.precio}
+                                                        onChange={(e) => actualizarVariante(v.tempId, 'precio', e.target.value)}
+                                                        placeholder="Precio"
+                                                        className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                        min="0"
+                                                        step="0.5"
+                                                    />
+                                                    <button
+                                                        onClick={() => eliminarVariante(v.tempId)}
+                                                        className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={agregarVariante}
+                                            className="w-full py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-cafe-400 hover:text-cafe-600 transition-colors flex items-center justify-center gap-1"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                            Agregar variante
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* ══ SECCIÓN TOPPINGS ══ */}
+                            <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <span className="text-sm font-semibold text-gray-700">¿Este producto acepta toppings?</span>
+                                        <p className="text-xs text-gray-400">Extras opcionales que el cliente puede agregar</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setForm({ ...form, acepta_toppings: !form.acepta_toppings })}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.acepta_toppings ? 'bg-green-500' : 'bg-gray-300'}`}
+                                    >
+                                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${form.acepta_toppings ? 'translate-x-6' : 'translate-x-1'}`} />
+                                    </button>
+                                </div>
+
+                                {form.acepta_toppings && (
+                                    <>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Precio por topping extra</label>
+                                                <input
+                                                    type="number"
+                                                    value={form.precio_topping_extra}
+                                                    onChange={(e) => setForm({ ...form, precio_topping_extra: e.target.value })}
+                                                    placeholder="Ej: 10"
+                                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                    min="0"
+                                                    step="0.5"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Toppings incluidos sin costo</label>
+                                                <input
+                                                    type="number"
+                                                    value={form.toppings_gratis}
+                                                    onChange={(e) => setForm({ ...form, toppings_gratis: e.target.value })}
+                                                    placeholder="Ej: 1"
+                                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cafe-400"
+                                                    min="0"
+                                                />
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    Ej: en crepas el primer sabor ya está en el precio, los adicionales cuestan extra
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Toppings disponibles para este producto</label>
+                                            <p className="text-xs text-gray-400 mb-2">
+                                                Gestiona el catálogo completo en la sección Toppings
+                                            </p>
+                                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto bg-white border border-gray-100 rounded-lg p-3">
+                                                {todosLosToppings.map((t) => (
+                                                    <label key={t.id} className="flex items-center gap-2 text-sm p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={form.toppings_seleccionados.includes(t.id)}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setForm({ ...form, toppings_seleccionados: [...form.toppings_seleccionados, t.id] });
+                                                                } else {
+                                                                    setForm({ ...form, toppings_seleccionados: form.toppings_seleccionados.filter((id) => id !== t.id) });
+                                                                }
+                                                            }}
+                                                            className="rounded text-cafe-600 focus:ring-cafe-500 w-4 h-4"
+                                                        />
+                                                        <span className="truncate">{t.nombre}</span>
+                                                    </label>
+                                                ))}
+                                                {todosLosToppings.length === 0 && (
+                                                    <span className="text-xs text-gray-400 p-2 col-span-2">
+                                                        No hay toppings activos. Crea toppings en la sección Toppings primero.
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Imagen */}
                             <div>
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Imagen del producto</label>
                                 <div>
@@ -287,6 +657,7 @@ export default function AdminProductosPage() {
                                 </p>
                             </div>
 
+                            {/* Toggle de disponibilidad */}
                             <div className="flex items-center gap-3">
                                 <button onClick={() => setForm({ ...form, esta_disponible: !form.esta_disponible })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.esta_disponible ? 'bg-green-500' : 'bg-gray-300'}`}>
                                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${form.esta_disponible ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -294,14 +665,23 @@ export default function AdminProductosPage() {
                                 <span className="text-sm text-gray-600">{form.esta_disponible ? 'Disponible' : 'No disponible'}</span>
                             </div>
                         </div>
+
+                        {/* Footer del modal */}
                         <div className="border-t border-gray-100 px-6 py-4 flex gap-3">
                             <button onClick={() => setModalAbierto(false)} className="flex-1 px-4 py-2.5 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">Cancelar</button>
-                            <button onClick={handleGuardar} disabled={!form.nombre || !form.precio || !form.categoria_id || guardando} className="flex-1 px-4 py-2.5 bg-cafe-600 hover:bg-cafe-700 disabled:opacity-50 flex justify-center items-center text-white rounded-xl text-sm font-medium">{guardando ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (productoEditando ? 'Guardar Cambios' : 'Crear Producto')}</button>
+                            <button
+                                onClick={handleGuardar}
+                                disabled={!form.nombre || !form.categoria_id || (!form.tiene_variantes && !form.precio) || guardando}
+                                className="flex-1 px-4 py-2.5 bg-cafe-600 hover:bg-cafe-700 disabled:opacity-50 flex justify-center items-center text-white rounded-xl text-sm font-medium"
+                            >
+                                {guardando ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (productoEditando ? 'Guardar Cambios' : 'Crear Producto')}
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
 
+            {/* Modal Confirmar Eliminar */}
             {confirmarEliminar && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmarEliminar(null)} />

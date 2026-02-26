@@ -13,12 +13,12 @@ interface ProductoDetalleProps {
 
 export function ProductoDetalle({ producto, onCerrar }: ProductoDetalleProps) {
     const [cantidad, setCantidad] = useState(1);
-    const agregar = useCarrito((state) => state.agregar);
+    const agregarSimple = useCarrito((state) => state.agregarSimple);
 
     const handleAgregar = () => {
         if (!producto.esta_disponible) return;
         for (let i = 0; i < cantidad; i++) {
-            agregar(producto);
+            agregarSimple(producto);
         }
         onCerrar();
     };
@@ -80,7 +80,9 @@ export function ProductoDetalle({ producto, onCerrar }: ProductoDetalleProps) {
                     {/* Precio y selector de cantidad */}
                     <div className="flex items-center justify-between mt-6">
                         <span className="text-2xl font-bold text-cafe-700">
-                            {formatearPrecio(producto.precio)}
+                            {producto.tiene_variantes
+                                ? 'Configurable'
+                                : formatearPrecio(producto.precio ?? 0)}
                         </span>
 
                         {producto.esta_disponible && (
@@ -114,7 +116,7 @@ export function ProductoDetalle({ producto, onCerrar }: ProductoDetalleProps) {
                             onClick={handleAgregar}
                             className="w-full bg-cafe-700 hover:bg-cafe-800 text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-cafe-700/25 text-base"
                         >
-                            Agregar al Carrito — {formatearPrecio(producto.precio * cantidad)}
+                            Agregar al Carrito — {formatearPrecio((producto.precio ?? 0) * cantidad)}
                         </button>
                     </div>
                 )}

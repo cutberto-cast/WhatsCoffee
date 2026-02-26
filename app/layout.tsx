@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
   title: 'Nube Alta Cafe | Menú Digital',
@@ -14,14 +15,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: config } = await supabase
+    .from('configuracion')
+    .select('color_primario')
+    .limit(1)
+    .single();
+
+  const colorPrimario = config?.color_primario ?? '#4A2C2A';
+
   return (
     <html lang="es">
-      <body className="antialiased min-h-screen">
+      <body
+        className="antialiased min-h-screen"
+        style={{ '--color-primario': colorPrimario } as React.CSSProperties}
+      >
         {children}
       </body>
     </html>

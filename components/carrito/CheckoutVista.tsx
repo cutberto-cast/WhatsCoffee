@@ -71,7 +71,15 @@ export function CheckoutVista({ onVolver }: CheckoutVistaProps) {
 
         mensaje += `*🛒 DETALLE DEL PEDIDO:*\n`;
         itemsParam.forEach((item) => {
-            mensaje += `• ${item.cantidad}x ${item.producto.nombre} - ${formatearPrecio(item.producto.precio * item.cantidad)}\n`;
+            const partes: string[] = [];
+            if (item.variante_elegida) {
+                partes.push(item.variante_elegida.nombre);
+            }
+            if (item.toppings_elegidos && item.toppings_elegidos.length > 0) {
+                partes.push(item.toppings_elegidos.map((t) => t.nombre).join(', '));
+            }
+            const detalle = partes.length > 0 ? ` — ${partes.join(' · ')}` : '';
+            mensaje += `• ${item.cantidad}x ${item.producto.nombre}${detalle} - ${formatearPrecio(item.precio_final * item.cantidad)}\n`;
         });
 
         mensaje += `\n*TOTAL A PAGAR: ${formatearPrecio(totalParam)}*`;
@@ -173,13 +181,21 @@ export function CheckoutVista({ onVolver }: CheckoutVistaProps) {
             <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
                 <h3 className="text-sm font-semibold text-cafe-700 mb-3">Resumen del Pedido</h3>
                 <div className="space-y-2">
-                    {itemsCliente.map((item) => (
-                        <div key={item.producto.id} className="flex justify-between text-sm">
-                            <span className="text-cafe-600">
-                                {item.cantidad}x {item.producto.nombre}
-                            </span>
-                            <span className="text-cafe-700 font-medium">
-                                {formatearPrecio(item.producto.precio * item.cantidad)}
+                    {itemsCliente.map((item, idx) => (
+                        <div key={`checkout-${idx}`} className="flex justify-between text-sm">
+                            <div className="flex-1 min-w-0">
+                                <span className="text-cafe-600">
+                                    {item.cantidad}x {item.producto.nombre}
+                                </span>
+                                {item.variante_elegida && (
+                                    <span className="text-xs text-gray-400 ml-1">· {item.variante_elegida.nombre}</span>
+                                )}
+                                {item.toppings_elegidos && item.toppings_elegidos.length > 0 && (
+                                    <p className="text-xs text-gray-400 truncate">· {item.toppings_elegidos.map((t) => t.nombre).join(', ')}</p>
+                                )}
+                            </div>
+                            <span className="text-cafe-700 font-medium flex-shrink-0 ml-2">
+                                {formatearPrecio(item.precio_final * item.cantidad)}
                             </span>
                         </div>
                     ))}
