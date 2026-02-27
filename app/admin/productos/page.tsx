@@ -407,7 +407,7 @@ export default function AdminProductosPage() {
                                     <td className="px-5 py-3 text-center">
                                         <button
                                             onClick={() => toggleDisponibilidad(producto)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${producto.esta_disponible ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${producto.esta_disponible ? 'bg-[var(--color-matcha)]' : 'bg-red-400'}`}
                                         >
                                             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${producto.esta_disponible ? 'translate-x-6' : 'translate-x-1'}`} />
                                         </button>

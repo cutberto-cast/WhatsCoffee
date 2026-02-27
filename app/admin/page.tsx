@@ -52,10 +52,10 @@ export default function AdminDashboard() {
     const bannersActivos = banners.filter((b) => b.activo).length;
 
     const stats = [
-        { label: 'Total Productos', valor: productos.length, subtexto: 'En el catálogo', Icon: Package },
-        { label: 'Disponibles', valor: productosActivos, subtexto: 'Activos ahora', Icon: CheckCircle },
-        { label: 'Categorías', valor: categorias.length, subtexto: 'Agrupaciones', Icon: Tag },
-        { label: 'Banners Activos', valor: bannersActivos, subtexto: 'Promociones web', Icon: ImageIcon },
+        { label: 'Total Productos', valor: productos.length, subtexto: 'En el catálogo', Icon: Package, href: '/admin/productos' },
+        { label: 'Disponibles', valor: productosActivos, subtexto: 'Activos ahora', Icon: CheckCircle, href: '/admin/productos' },
+        { label: 'Categorías', valor: categorias.length, subtexto: 'Agrupaciones', Icon: Tag, href: '/admin/categorias' },
+        { label: 'Banners Activos', valor: bannersActivos, subtexto: 'Promociones web', Icon: ImageIcon, href: '/admin/banners' },
     ];
 
     const acciones = [
@@ -91,25 +91,26 @@ export default function AdminDashboard() {
                 </span>
             </div>
 
-            {/* Tarjetas de Métricas (KPIs) */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white border border-[var(--color-borde)] rounded-xl p-5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-shadow duration-200">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
-                                {stat.label}
-                            </span>
-                            <div className="w-7 h-7 rounded-lg bg-[var(--color-base)] border border-[var(--color-borde)] flex items-center justify-center">
-                                <stat.Icon size={14} strokeWidth={1.5} className="text-[var(--color-texto-2)]" />
+                    <Link key={idx} href={stat.href}>
+                        <div className="bg-white border border-[var(--color-borde)] rounded-xl p-5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-0.5 cursor-pointer transition-all duration-200 active:scale-[0.98]">
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
+                                    {stat.label}
+                                </span>
+                                <div className="relative w-7 h-7 rounded-lg bg-[var(--color-base)] border border-[var(--color-borde)] flex items-center justify-center">
+                                    <stat.Icon size={14} strokeWidth={1.5} className="text-[var(--color-texto-2)]" />
+                                </div>
                             </div>
+                            <p className="text-3xl font-semibold text-[var(--color-texto-1)] tracking-tight leading-none mb-1">
+                                {stat.valor}
+                            </p>
+                            <p className="text-xs text-[var(--color-texto-3)]">
+                                {stat.subtexto}
+                            </p>
                         </div>
-                        <p className="text-3xl font-semibold text-[var(--color-texto-1)] tracking-tight leading-none mb-1">
-                            {stat.valor}
-                        </p>
-                        <p className="text-xs text-[var(--color-texto-3)]">
-                            {stat.subtexto}
-                        </p>
-                    </div>
+                    </Link>
                 ))}
             </div>
 
@@ -125,7 +126,7 @@ export default function AdminDashboard() {
                             <accion.Icon
                                 size={15}
                                 strokeWidth={1.5}
-                                className="text-[var(--color-texto-2)] group-hover:text-[var(--color-matcha)] transition-colors duration-200"
+                                className="text-[var(--color-texto-2)]  transition-colors duration-200"
                             />
                         </div>
                         <div>
@@ -207,14 +208,32 @@ export default function AdminDashboard() {
                                     </td>
 
                                     {/* Estado */}
-                                    <td className="px-4 py-3">
+                                    {/* <td className="px-4 py-3">
                                         <span className="flex items-center gap-1.5 text-[12px] font-medium">
                                             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${producto.esta_disponible ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-texto-3)]'}`} />
                                             <span className={producto.esta_disponible ? 'text-[var(--color-matcha)]' : 'text-[var(--color-texto-3)]'}>
                                                 {producto.esta_disponible ? 'Activo' : 'Inactivo'}
                                             </span>
                                         </span>
+                                    </td> */}
+                                    {/* <td className="px-4 py-3">
+                                        <span className="flex items-center gap-2 text-sm font-medium">
+                                            <span className={`w-3 h-3 rounded-full flex-shrink-0 ${producto.esta_disponible ? 'bg-green-600' : 'bg-red-600'}`} />
+                                            <span className={producto.esta_disponible ? 'text-green-600' : 'text-red-600'}>
+                                                {producto.esta_disponible ? 'Activo' : 'Inactivo'}
+                                            </span>
+                                        </span>
+                                    </td> */}
+
+                                    <td className="px-4 py-3">
+                                        <span className="flex items-center gap-1.5 text-[12px] font-medium">
+                                            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${producto.esta_disponible ? 'bg-green-600' : 'bg-red-600'}`} />
+                                            <span>
+                                                {producto.esta_disponible ? 'Activo' : 'Inactivo'}
+                                            </span>
+                                        </span>
                                     </td>
+
                                 </tr>
                             ))}
                         </tbody>

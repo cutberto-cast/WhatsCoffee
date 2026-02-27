@@ -97,11 +97,6 @@ export default function AdminConfiguracionPage() {
                         </div>
                     </div>
 
-                    <div className="border-t border-[var(--color-borde)] py-6">
-                        <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-2">URL del Logo (Opcional)</label>
-                        <input type="url" value={form.logo_url} onChange={(e) => setForm({ ...form, logo_url: e.target.value })} className="w-full px-4 py-3 bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl text-[13px] text-[var(--color-texto-1)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all focus:bg-white transition-all shadow-sm" placeholder="https://ejemplo.com/logo.png" />
-                    </div>
-
                     <div className="border-t border-[var(--color-borde)] pt-6">
                         <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-2">Color Primario de la Tienda</label>
                         <div className="flex items-center gap-4">

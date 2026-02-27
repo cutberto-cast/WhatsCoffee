@@ -308,7 +308,6 @@ export default function AdminBannersPage() {
                                     </div>
                                 )}
                                 <div className="absolute top-4 left-4 flex gap-2">
-                                    <span className="bg-[var(--color-acento)] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">Orden: {banner.orden}</span>
                                     {isFullImage ? (
                                         <span className="bg-gray-100 text-[var(--color-texto-2)] text-xs font-bold px-3 py-1 rounded-full shadow-md">Personalizado</span>
                                     ) : (
@@ -326,10 +325,10 @@ export default function AdminBannersPage() {
                                 </div>
                             </div>
                             <div className="px-6 py-4 flex items-center justify-between bg-[var(--color-base)] border-t border-[var(--color-borde)]">
-                                <span className="text-sm font-medium text-[var(--color-texto-2)]">Estado del banner en la tienda:</span>
+                                <span className="bg-[var(--color-acento)] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">Posicion: {banner.orden}</span>
                                 <div className="flex items-center gap-3">
-                                    <span className={`text-sm font-semibold ${banner.activo ? 'text-green-600' : 'text-[var(--color-texto-3)]'}`}>{banner.activo ? 'Mostrando' : 'Oculto'}</span>
-                                    <button onClick={() => toggleActivo(banner)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${banner.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}>
+                                    <span className={`text-sm font-semibold ${banner.activo ? 'text-green-600' : 'text-[var(--color-texto-3)]'}`}>{banner.activo ? 'Activo' : 'Oculto'}</span>
+                                    <button onClick={() => toggleActivo(banner)} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${banner.activo ? 'bg-[var(--color-matcha)]' : 'bg-red-400'}`}>
                                         <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-sm ${banner.activo ? 'translate-x-6' : 'translate-x-1'}`} />
                                     </button>
                                 </div>
@@ -470,7 +469,7 @@ export default function AdminBannersPage() {
                                 <div><label className="block text-xs font-medium text-[var(--color-texto-3)] mb-1">Orden de aparición</label><input type="number" value={form.orden} onChange={(e) => setForm({ ...form, orden: e.target.value })} className="w-full px-3 py-2 border border-[var(--color-borde)] rounded-lg text-[13px] text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)] shadow-sm transition-all" min="1" /></div>
                                 <div className="flex items-center justify-between pt-6 border border-[var(--color-borde)] rounded-xl px-4 bg-white">
                                     <span className="text-sm font-semibold text-[var(--color-texto-2)]">Estado</span>
-                                    <button onClick={() => setForm({ ...form, activo: !form.activo })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'}`}>
+                                    <button onClick={() => setForm({ ...form, activo: !form.activo })} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-[var(--color-matcha)]' : 'bg-red-400'}`}>
                                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${form.activo ? 'translate-x-6' : 'translate-x-1'}`} />
                                     </button>
                                 </div>

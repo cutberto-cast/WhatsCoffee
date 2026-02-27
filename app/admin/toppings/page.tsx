@@ -185,7 +185,7 @@ export default function AdminToppingsPage() {
                                     <td className="px-5 py-3 text-center">
                                         <button
                                             onClick={() => toggleActivo(topping)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${topping.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${topping.activo ? 'bg-[var(--color-matcha)]' : 'bg-red-400'
                                                 }`}
                                         >
                                             <span
@@ -276,7 +276,7 @@ export default function AdminToppingsPage() {
                                     onClick={() =>
                                         setForm({ ...form, activo: !form.activo })
                                     }
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-[var(--color-matcha)]' : 'bg-[var(--color-borde)]'
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.activo ? 'bg-[var(--color-matcha)]' : 'bg-red-400'
                                         }`}
                                 >
                                     <span
