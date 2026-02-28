@@ -13,7 +13,11 @@ export default function AdminConfiguracionPage() {
         nombre_negocio: '',
         telefono_whatsapp: '',
         logo_url: '',
-        color_primario: '#4A2C2A'
+        color_primario: '#4A2C2A',
+        banco: '',
+        beneficiario: '',
+        clabe: '',
+        concepto_transferencia: 'Pago de pedido',
     });
 
     const supabase = createClient();
@@ -168,6 +172,72 @@ export default function AdminConfiguracionPage() {
                             >
                                 Restaurar
                             </button>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-[var(--color-borde)] pt-6">
+                        <div className="mb-4">
+                            <h3 className="text-sm font-semibold text-[var(--color-texto-1)]">
+                                Datos para Transferencia
+                            </h3>
+                            <p className="text-xs text-[var(--color-texto-3)] mt-1">
+                                Se mostrarán al cliente cuando elija pagar por transferencia en el checkout.
+                            </p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-[var(--color-texto-1)] mb-2">
+                                    Banco
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.banco}
+                                    onChange={(e) => setForm({ ...form, banco: e.target.value })}
+                                    placeholder="Ej. BBVA, Banamex, HSBC..."
+                                    className="w-full px-4 py-3 bg-gray-50 border border-[var(--color-borde)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-espresso)]/20 focus:bg-white transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-[var(--color-texto-1)] mb-2">
+                                    Beneficiario
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.beneficiario}
+                                    onChange={(e) => setForm({ ...form, beneficiario: e.target.value })}
+                                    placeholder="Nombre completo del titular"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-[var(--color-borde)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-espresso)]/20 focus:bg-white transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-[var(--color-texto-1)] mb-2">
+                                    CLABE / Número de cuenta
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.clabe}
+                                    onChange={(e) => setForm({ ...form, clabe: e.target.value.replace(/\D/g, '') })}
+                                    placeholder="18 dígitos CLABE interbancaria"
+                                    maxLength={18}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-[var(--color-borde)] rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-espresso)]/20 focus:bg-white transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-[var(--color-texto-1)] mb-2">
+                                    Concepto sugerido
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.concepto_transferencia}
+                                    onChange={(e) => setForm({ ...form, concepto_transferencia: e.target.value })}
+                                    placeholder="Ej. Pago de pedido"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-[var(--color-borde)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-espresso)]/20 focus:bg-white transition-all"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
