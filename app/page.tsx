@@ -206,10 +206,10 @@ export default function HomePage() {
         {/* HEADER SIEMPRE VISIBLE */}
         <header className={`flex flex-col gap-2 relative bg-[var(--color-primario)] px-4 pt-3 shadow-xl -mx-4 sm:mx-0 sm:rounded-b-3xl sm:rounded-none rounded-b-3xl mb-5 ${vista === 'home' ? 'pb-4' : 'pb-3'}`}>
           <div className="flex items-center justify-between z-10 relative w-full">
-            <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">{nombreNegocio}</h1>
+            <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-wide" style={{ color: '#ffff', fontFamily: "'Georgia', 'Palatino Linotype', serif" }}>{nombreNegocio}</h1>
             <div className="relative h-11 w-11 sm:h-12 sm:w-12 shrink-0 bg-white rounded-full shadow-sm overflow-hidden flex items-center justify-center">
               <Image
-                src="/images/logo-nuve-alta.png"
+                src="/images/cafecito-header.png"
                 alt="Nube Alta Cafe"
                 fill
                 className="object-contain p-1.5"
@@ -244,8 +244,7 @@ export default function HomePage() {
             </div>
 
             <div
-              className="sticky top-0 z-30 -mx-4 px-4 py-2 backdrop-blur-md border-b border-[#3A2220]/50 shadow-md"
-              style={{ backgroundColor: 'lab(91 5.28 26.07 / 0.9)' }}
+              className="sticky top-0 z-30 -mx-4 px-4 py-0.5 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300"
             >
               <CategoriasNav categorias={categorias} macroActiva={macroActiva} onSeleccionar={(macro) => {
                 setMacroActiva(macro);
