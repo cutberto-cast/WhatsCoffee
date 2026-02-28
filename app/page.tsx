@@ -239,13 +239,19 @@ export default function HomePage() {
               }}
             />
 
-            <section id="categorias-section">
+            <div id="categorias-section">
               <h2 className="text-lg font-bold text-cafe-900 mb-3">Categorías</h2>
+            </div>
+
+            <div
+              className="sticky top-0 z-30 -mx-4 px-4 py-2 backdrop-blur-md border-b border-[#3A2220]/50 shadow-md"
+              style={{ backgroundColor: 'lab(91 5.28 26.07 / 0.9)' }}
+            >
               <CategoriasNav categorias={categorias} macroActiva={macroActiva} onSeleccionar={(macro) => {
                 setMacroActiva(macro);
                 setBannerFiltroActivo(null);
               }} />
-            </section>
+            </div>
 
             <section>
               {bannerFiltroActivo && (

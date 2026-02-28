@@ -21,11 +21,11 @@ export function CategoriasNav({
 
     return (
         <nav className="w-full" aria-label="Categorías del menú">
-            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+            <div className="grid gap-2 py-1" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
                 {/* Botón Todos */}
                 <button
                     onClick={() => onSeleccionar(null)}
-                    className={`flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl border-2 transition-all ${macroActiva === null
+                    className={`flex flex-col items-center justify-center gap-1 aspect-square p-1 rounded-xl border-2 transition-all ${macroActiva === null
                         ? 'border-[var(--color-primario)] bg-[var(--color-primario)] text-white'
                         : 'border-gray-200 bg-white text-gray-600 hover:border-cafe-300'
                         }`}
@@ -42,7 +42,7 @@ export function CategoriasNav({
                     <button
                         key={macro.id}
                         onClick={() => onSeleccionar(macro.id)}
-                        className={`flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl border-2 transition-all ${macroActiva === macro.id
+                        className={`flex flex-col items-center justify-center gap-1 aspect-square p-1 rounded-xl border-2 transition-all ${macroActiva === macro.id
                             ? 'border-[var(--color-primario)] bg-[var(--color-primario)] text-white'
                             : 'border-gray-200 bg-white text-gray-600 hover:border-cafe-300'
                             }`}

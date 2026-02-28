@@ -328,10 +328,10 @@ export default function AdminProductosPage() {
     };
 
     const getTipoProducto = (producto: Producto): string => {
-        const partes: string[] = [];
-        if (producto.tiene_variantes) partes.push('Variantes');
-        if (producto.acepta_toppings) partes.push('Toppings');
-        return partes.length > 0 ? partes.join(' + ') : 'Simple';
+        if (producto.tiene_variantes && producto.acepta_toppings) return 'Configurable';
+        if (producto.tiene_variantes) return 'Variable';
+        if (producto.acepta_toppings && !producto.tiene_variantes) return 'Con toppings';
+        return 'Simple';
     };
 
     if (cargando) {
@@ -359,63 +359,300 @@ export default function AdminProductosPage() {
                 </select>
             </div>
 
-            {/* Tabla de productos */}
-            <div className="bg-white border border-[var(--color-borde)] rounded-xl shadow-[var(--shadow-card)] overflow-hidden transition-shadow hover:shadow-[var(--shadow-hover)]">
+            {/* ═══════ VISTA MÓVIL: LISTA COMPACTA ═══════ */}
+            <div className="grid grid-cols-1 gap-2 sm:hidden">
+                {productosFiltrados.map((producto) => (
+                    <div key={producto.id}
+                        className="bg-white border border-[var(--color-borde)]
+                                rounded-xl p-2.5 flex items-center gap-3
+                                shadow-sm transition-all
+                                hover:border-[var(--color-espresso)]/30">
+
+                        {/* Imagen 48x48 */}
+                        <div className="relative w-12 h-12 rounded-lg
+                                overflow-hidden bg-[var(--color-base)]
+                                border border-[var(--color-borde)]
+                                flex-shrink-0">
+                            {producto.imagen_url ? (
+                                <Image
+                                    src={producto.imagen_url}
+                                    alt={producto.nombre}
+                                    fill
+                                    className="object-cover"
+                                    sizes="48px"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center
+                                    justify-center">
+                                    <svg className="w-5 h-5 text-[var(--color-texto-3)]"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={1.5}
+                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8
+                                4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Info: Nombre → Categoría → Precio */}
+                        <div className="flex-1 min-w-0 flex flex-col
+                                justify-center">
+                            <h3 className="font-semibold text-[13px]
+                                text-[var(--color-texto-1)]
+                                leading-tight truncate">
+                                {producto.nombre}
+                            </h3>
+                            <span className="text-[11px] font-medium
+                                    text-[var(--color-texto-2)]
+                                    mt-0.5 truncate">
+                                {getNombreCategoria(producto.categoria_id)}
+                            </span>
+                            <p className="font-bold text-[12px]
+                                text-[var(--color-texto-1)] mt-0.5">
+                                {producto.tiene_variantes
+                                    ? <span className="text-[10px] font-normal
+                                        text-[var(--color-texto-3)]
+                                        mr-1">Desde</span>
+                                    : ''}
+                                {formatearPrecio(producto.precio ?? 0)}
+                            </p>
+                        </div>
+
+                        {/* Acciones */}
+                        <div className="flex items-center gap-1 flex-shrink-0
+                                pl-2 border-l
+                                border-[var(--color-borde)]/50">
+                            <button
+                                onClick={() => toggleDisponibilidad(producto)}
+                                className={`relative inline-flex h-5 w-9
+                            items-center rounded-full transition-colors mr-1
+                            ${producto.esta_disponible
+                                        ? 'bg-[var(--color-matcha)]'
+                                        : 'bg-red-400'}`}
+                            >
+                                <span
+                                    className="inline-block h-3.5 w-3.5 rounded-full
+                                bg-white shadow-sm transition-transform"
+                                    style={{
+                                        transform: producto.esta_disponible
+                                            ? 'translateX(18px)'
+                                            : 'translateX(4px)'
+                                    }}
+                                />
+                            </button>
+
+                            <button
+                                onClick={() => abrirEditar(producto)}
+                                className="p-1.5 text-[var(--color-texto-2)]
+                                hover:text-[var(--color-espresso)]
+                                hover:bg-[var(--color-base)]
+                                rounded-lg transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round"
+                                        strokeLinejoin="round" strokeWidth={2}
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002
+                                2h11a2 2 0 002-2v-5m-1.414-9.414a2 2
+                                0 112.828 2.828L11.828 15H9v-2.828
+                                l8.586-8.586z" />
+                                </svg>
+                            </button>
+
+                            <button
+                                onClick={() => setConfirmarEliminar(producto.id)}
+                                className="p-1.5 text-red-400 hover:text-red-600
+                                hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round"
+                                        strokeLinejoin="round" strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138
+                                21H7.862a2 2 0 01-1.995-1.858L5 7m5
+                                4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1
+                                1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+
+                {productosFiltrados.length === 0 && (
+                    <div className="text-center py-8 bg-white rounded-xl
+                                border border-[var(--color-borde)]">
+                        <p className="text-[var(--color-texto-3)] text-[13px]">
+                            No se encontraron productos
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* ═══════ VISTA DESKTOP: TABLA ═══════ */}
+            <div className="hidden sm:block bg-white
+                            border border-[var(--color-borde)]
+                            rounded-xl shadow-[var(--shadow-card)]
+                            overflow-hidden transition-shadow
+                            hover:shadow-[var(--shadow-hover)]">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-[var(--color-borde)] text-[11px] font-semibold tracking-widest uppercase text-[var(--color-texto-3)]">
-                                <th className="text-left px-5 py-3.5">Producto</th>
-                                <th className="text-left px-5 py-3.5 hidden sm:table-cell">Categoría</th>
-                                <th className="text-left px-5 py-3.5">Precio</th>
-                                <th className="text-center px-5 py-3.5 hidden sm:table-cell">Tipo</th>
-                                <th className="text-center px-5 py-3.5">Estado</th>
-                                <th className="text-right px-5 py-3.5">Acciones</th>
+                            <tr className="border-b border-[var(--color-borde)]
+                                text-[10px] font-bold tracking-wider
+                                uppercase text-[var(--color-texto-3)]
+                                bg-[var(--color-base)]/30">
+                                <th className="text-left px-4 py-3">Producto</th>
+                                <th className="text-left px-4 py-3">Categoría</th>
+                                <th className="text-left px-4 py-3">Precio</th>
+                                <th className="text-center px-4 py-3">Tipo</th>
+                                <th className="text-center px-4 py-3">Estado</th>
+                                <th className="text-right px-4 py-3">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--color-borde)]">
                             {productosFiltrados.map((producto) => (
-                                <tr key={producto.id} className="hover:bg-[var(--color-base)] transition-colors duration-150">
-                                    <td className="px-5 py-3">
+                                <tr key={producto.id}
+                                    className="hover:bg-[var(--color-base)]
+                                    transition-colors duration-150 group">
+
+                                    <td className="px-4 py-2">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-[var(--color-base)] border border-[var(--color-borde)] flex-shrink-0">
+                                            <div className="relative w-9 h-9 rounded-lg
+                                            overflow-hidden bg-white
+                                            border border-[var(--color-borde)]
+                                            flex-shrink-0">
                                                 {producto.imagen_url ? (
-                                                    <Image src={producto.imagen_url} alt={producto.nombre} fill className="object-cover" sizes="44px" />
+                                                    <Image
+                                                        src={producto.imagen_url}
+                                                        alt={producto.nombre}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="36px"
+                                                    />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center"><svg className="w-5 h-5 text-[var(--color-texto-3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div>
+                                                    <div className="w-full h-full flex
+                                                items-center justify-center">
+                                                        <svg className="w-4 h-4
+                                                text-[var(--color-texto-3)]"
+                                                            fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={1.5}
+                                                                d="M20 7l-8-4-8 4m16 0l-8
+                                            4m8-4v10l-8 4m0-10L4 7m8
+                                            4v10M4 7v10l8 4" />
+                                                        </svg>
+                                                    </div>
                                                 )}
                                             </div>
-                                            <div className="min-w-0">
-                                                <p className="font-medium text-[13px] text-[var(--color-texto-1)] truncate">{producto.nombre}</p>
-                                                <p className="text-[var(--color-texto-3)] text-xs truncate max-w-[200px]">{producto.descripcion}</p>
-                                            </div>
+                                            <p className="font-semibold text-[13px]
+                                        text-[var(--color-texto-1)]
+                                        truncate max-w-[220px]"
+                                                title={producto.nombre}>
+                                                {producto.nombre}
+                                            </p>
                                         </div>
                                     </td>
-                                    <td className="px-5 py-3 hidden sm:table-cell">
-                                        <span className="text-xs text-[var(--color-texto-2)] font-medium">{getNombreCategoria(producto.categoria_id)}</span>
-                                    </td>
-                                    <td className="px-5 py-3">
-                                        <span className="font-semibold text-[13px] text-[var(--color-texto-1)]">
-                                            {producto.tiene_variantes ? 'Variable' : formatearPrecio(producto.precio ?? 0)}
+
+                                    <td className="px-4 py-2">
+                                        <span className="text-[12px]
+                                        text-[var(--color-texto-2)]">
+                                            {getNombreCategoria(producto.categoria_id)}
                                         </span>
                                     </td>
-                                    <td className="px-5 py-3 text-center hidden sm:table-cell">
-                                        <span className="text-xs text-[var(--color-texto-2)] font-medium">
+
+                                    <td className="px-4 py-2">
+                                        <span className="font-semibold text-[13px]
+                                        text-[var(--color-texto-1)]">
+                                            {producto.tiene_variantes
+                                                ? <span className="text-[10px]
+                                                text-[var(--color-texto-3)]
+                                                mr-1">Desde</span>
+                                                : ''}
+                                            {formatearPrecio(producto.precio ?? 0)}
+                                        </span>
+                                    </td>
+
+                                    <td className="px-4 py-2 text-center">
+                                        <span className="text-[10px]
+                                        text-[var(--color-texto-2)]
+                                        font-semibold uppercase
+                                        tracking-wide
+                                        bg-[var(--color-base)]
+                                        px-2 py-1 rounded-md">
                                             {getTipoProducto(producto)}
                                         </span>
                                     </td>
-                                    <td className="px-5 py-3 text-center">
+
+                                    <td className="px-4 py-2 text-center">
                                         <button
                                             onClick={() => toggleDisponibilidad(producto)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${producto.esta_disponible ? 'bg-[var(--color-matcha)]' : 'bg-red-400'}`}
+                                            className={`relative inline-flex h-5 w-9
+                            items-center rounded-full transition-colors
+                            ${producto.esta_disponible
+                                                    ? 'bg-[var(--color-matcha)]'
+                                                    : 'bg-red-400'}`}
                                         >
-                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${producto.esta_disponible ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            <span
+                                                className={`inline-block h-3.5 w-3.5
+                                rounded-full bg-white shadow-sm
+                                transition-transform
+                                ${producto.esta_disponible
+                                                        ? 'translate-x-5'
+                                                        : 'translate-x-1'}`}
+                                            />
                                         </button>
                                     </td>
-                                    <td className="px-5 py-3 text-right">
-                                        <div className="flex items-center justify-end gap-1">
-                                            <button onClick={() => abrirEditar(producto)} className="p-2 hover:bg-[var(--color-base)] rounded-lg transition-colors text-[var(--color-texto-2)] hover:text-[var(--color-texto-1)]"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
-                                            <button onClick={() => setConfirmarEliminar(producto.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-500"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+
+                                    <td className="px-4 py-2 text-right">
+                                        <div className="flex items-center justify-end
+                                        gap-0.5 opacity-70
+                                        group-hover:opacity-100
+                                        transition-opacity">
+                                            <button
+                                                onClick={() => abrirEditar(producto)}
+                                                className="p-1.5 hover:bg-white rounded-lg
+                                        transition-colors
+                                        text-[var(--color-texto-2)]
+                                        hover:text-[var(--color-espresso)]
+                                        hover:shadow-sm"
+                                            >
+                                                <svg className="w-4 h-4" fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2
+                                        0 002 2h11a2 2 0 002-2v-5
+                                        m-1.414-9.414a2 2 0 112.828
+                                        2.828L11.828 15H9v-2.828
+                                        l8.586-8.586z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={() => setConfirmarEliminar(producto.id)}
+                                                className="p-1.5 hover:bg-red-50 rounded-lg
+                                        transition-colors text-red-400
+                                        hover:text-red-600 hover:shadow-sm"
+                                            >
+                                                <svg className="w-4 h-4" fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M19 7l-.867 12.142A2 2 0
+                                        0116.138 21H7.862a2 2 0
+                                        01-1.995-1.858L5 7m5 4v6m4-6v6
+                                        m1-10V4a1 1 0 00-1-1h-4a1 1 0
+                                        00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -423,7 +660,6 @@ export default function AdminProductosPage() {
                         </tbody>
                     </table>
                 </div>
-                {productosFiltrados.length === 0 && <div className="text-center py-12"><p className="text-[var(--color-texto-3)] text-[13px]">No se encontraron productos</p></div>}
             </div>
 
             {/* ═══════ MODAL CREAR/EDITAR ═══════ */}

@@ -98,16 +98,76 @@ export default function AdminConfiguracionPage() {
                     </div>
 
                     <div className="border-t border-[var(--color-borde)] pt-6">
-                        <label className="block text-sm font-semibold text-[var(--color-texto-2)] mb-2">Color Primario de la Tienda</label>
-                        <div className="flex items-center gap-4">
-                            <div className="relative w-12 h-12 rounded-xl border-2 border-[var(--color-borde)] overflow-hidden shadow-sm">
-                                <input type="color" value={form.color_primario} onChange={(e) => setForm({ ...form, color_primario: e.target.value })} className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer" />
+                        <label className="block text-sm font-semibold text-[var(--color-texto-1)] mb-1">
+                            Color Principal de la Tienda
+                        </label>
+                        <p className="text-xs text-[var(--color-texto-3)] mb-3">
+                            Define el color del header y botones de la app. Puedes usar el selector o pegar un código hex directamente (ej. #4A2C2A).
+                        </p>
+
+                        <div className="flex items-center gap-3">
+
+                            {/* Selector visual de color */}
+                            <div className="relative w-10 h-10 rounded-lg border-2 border-[var(--color-borde)] overflow-hidden shadow-sm flex-shrink-0 cursor-pointer">
+                                <input
+                                    type="color"
+                                    value={form.color_primario}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setForm({ ...form, color_primario: val });
+                                        document.documentElement.style.setProperty(
+                                            '--color-primario', val
+                                        );
+                                    }}
+                                    className="absolute -top-2 -left-2 w-14 h-14 cursor-pointer border-0 p-0"
+                                />
                             </div>
-                            <div>
-                                <p className="text-[var(--color-texto-1)] font-medium">{form.color_primario}</p>
-                                <p className="text-[var(--color-texto-3)] text-xs">Utilizado en tema oscuro/claro de app.</p>
+
+                            {/* Input de texto hexadecimal */}
+                            <div className="flex-1 relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-texto-3)] font-mono text-sm select-none">
+                                    #
+                                </span>
+                                <input
+                                    type="text"
+                                    value={form.color_primario.replace('#', '')}
+                                    onChange={(e) => {
+                                        // Limpiar input: solo caracteres hex válidos
+                                        const raw = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
+                                        const hex = `#${raw}`;
+                                        setForm({ ...form, color_primario: hex });
+                                        // Aplicar solo si es un hex completo válido
+                                        if (raw.length === 6) {
+                                            document.documentElement.style.setProperty(
+                                                '--color-primario', hex
+                                            );
+                                        }
+                                    }}
+                                    placeholder="4A2C2A"
+                                    maxLength={6}
+                                    className="w-full pl-7 pr-4 py-2.5 border border-[var(--color-borde)] bg-white rounded-lg font-mono text-sm text-[var(--color-texto-1)] placeholder:text-[var(--color-texto-3)] focus:outline-none focus:ring-1 focus:ring-[var(--color-espresso)]/20 focus:border-[var(--color-texto-2)] transition-all"
+                                />
                             </div>
-                            <button onClick={() => setForm({ ...form, color_primario: '#4A2C2A' })} className="ml-auto text-[var(--color-texto-2)] hover:text-[var(--color-texto-1)] text-sm font-medium px-3 py-1.5 bg-cafe-50 rounded-lg">Restaurar Original</button>
+
+                            {/* Preview del color actual */}
+                            <div
+                                className="w-10 h-10 rounded-lg flex-shrink-0 border border-[var(--color-borde)] shadow-sm"
+                                style={{ backgroundColor: form.color_primario }}
+                            />
+
+                            {/* Botón restaurar */}
+                            <button
+                                onClick={() => {
+                                    const colorDefault = '#4A2C2A';
+                                    setForm({ ...form, color_primario: colorDefault });
+                                    document.documentElement.style.setProperty(
+                                        '--color-primario', colorDefault
+                                    );
+                                }}
+                                className="text-xs text-[var(--color-texto-3)] hover:text-[var(--color-texto-1)] px-3 py-2.5 border border-[var(--color-borde)] bg-white rounded-lg hover:bg-[var(--color-base)] transition-all whitespace-nowrap"
+                            >
+                                Restaurar
+                            </button>
                         </div>
                     </div>
                 </div>
