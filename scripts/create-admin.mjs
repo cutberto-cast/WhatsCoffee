@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Anon + signUp funciona porque el proyecto demo tiene signUp habilitado.
-// En un proyecto real usarías la service_role key desde un entorno de servidor.
+// Anon + signUp funciona porque este proyecto de Supabase tiene signUp habilitado.
+// En producción normalmente se usaría la service_role key desde un entorno de servidor.
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const email = process.env.ADMIN_EMAIL || 'admin@cafeorder.com';

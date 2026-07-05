@@ -1,6 +1,5 @@
--- Restaura el menú demo a un snapshot conocido. Pensado para un panel
--- admin público de portafolio: cualquiera puede editar/borrar datos,
--- y este botón regresa todo al estado de referencia.
+-- Restaura el menú a un snapshot conocido, para que el panel admin
+-- pueda revertir cambios y volver al estado de referencia.
 CREATE OR REPLACE FUNCTION "public"."reset_demo_data"() RETURNS void
     LANGUAGE plpgsql
     AS $$

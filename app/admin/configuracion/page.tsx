@@ -75,7 +75,7 @@ export default function AdminConfiguracionPage() {
 
     const handleRestaurarDemo = async () => {
         const confirmado = window.confirm(
-            'Esto borrará todos los productos, categorías, banners y toppings actuales y los reemplazará por el set de datos demo original. ¿Continuar?'
+            'Esto borrará todos los productos, categorías, banners y toppings actuales y los reemplazará por el set de datos original. ¿Continuar?'
         );
         if (!confirmado) return;
 
@@ -271,10 +271,10 @@ export default function AdminConfiguracionPage() {
             </div>
 
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 md:p-8">
-                <h3 className="text-sm font-semibold text-amber-900">Zona de demostración</h3>
+                <h3 className="text-sm font-semibold text-amber-900">Zona de restauración</h3>
                 <p className="text-xs text-amber-800 mt-1 mb-4">
-                    Este panel es público para fines de portafolio. Si los datos quedaron desordenados por pruebas,
-                    puedes restaurarlos al set demo original (productos, categorías, banners, toppings y configuración).
+                    Si los datos quedaron desordenados, puedes restaurarlos al set original
+                    (productos, categorías, banners, toppings y configuración).
                 </p>
                 {errorRestaurar && (
                     <p className="text-xs text-red-600 mb-3">{errorRestaurar}</p>
@@ -287,7 +287,7 @@ export default function AdminConfiguracionPage() {
                     {restaurando ? (
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                        'Restaurar datos demo'
+                        'Restaurar datos'
                     )}
                 </button>
             </div>

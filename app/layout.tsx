@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { createClient } from '@/lib/supabase/server';
-import { DemoBanner } from '@/components/DemoBanner';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -61,7 +60,6 @@ export default async function RootLayout({
         className={`${inter.variable} font-sans antialiased min-h-screen`}
         style={{ '--color-primario': colorPrimario } as React.CSSProperties}
       >
-        <DemoBanner />
         {children}
       </body>
     </html>

@@ -2,12 +2,9 @@
 
 [![CI](https://github.com/cutberto-cast/AdminCafe/actions/workflows/ci.yml/badge.svg)](https://github.com/cutberto-cast/AdminCafe/actions/workflows/ci.yml)
 
-> ⚠️ **Proyecto demo con fines de portafolio.** "Cafecito" no es un negocio real: no se procesan pagos ni pedidos reales. El panel de administración es público a propósito para que puedas explorarlo — usa el botón **"Restaurar datos demo"** en Configuración si quieres devolver los datos a su estado original.
-
 Aplicación full-stack de menú digital para una cafetería: catálogo de productos con variantes/toppings/ingredientes personalizables, carrito, checkout que genera un mensaje de WhatsApp listo para enviar, y un panel de administración completo para gestionar el negocio sin tocar código.
 
-🔗 **Demo en vivo:** https://admin-cafe-two.vercel.app
-🔑 **Acceso admin de prueba:** `admin@cafeorder.com` / `admin12345` (en [/admin/login](https://admin-cafe-two.vercel.app/admin/login))
+🔗 **Sitio en vivo:** https://admin-cafe-two.vercel.app
 
 ## Capturas
 
@@ -35,7 +32,7 @@ Aplicación full-stack de menú digital para una cafetería: catálogo de produc
 - Editor de variantes e ingredientes por producto
 - Configuración del negocio (nombre, WhatsApp, color de marca, datos bancarios)
 - Subida de imágenes a Supabase Storage
-- Botón de **reset a datos demo** (función Postgres `reset_demo_data()`) para que el panel público siempre pueda volver a un estado conocido
+- Botón de **restaurar datos** (función Postgres `reset_demo_data()`) para volver a un estado conocido
 - Bloqueo temporal tras 5 intentos fallidos de login (protección básica anti fuerza bruta)
 
 ## Arquitectura
@@ -52,7 +49,7 @@ Supabase (Postgres + Auth + Storage)
  ├─ RLS: lectura pública en catálogo, escritura solo para usuarios "authenticated"
  ├─ Esquema preparado para multi-tenant (tabla cafeterias / cafeteria_id),
  │  aunque la app actual opera en modo single-tenant
- └─ Función reset_demo_data() para restaurar el seed de demostración
+ └─ Función reset_demo_data() para restaurar el seed inicial
 ```
 
 ## Correr el proyecto localmente
@@ -70,7 +67,7 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave pública (anon) del proyecto Supabase |
 
-El esquema base (tablas `productos`, `categorias`, `cafeterias`) se administra desde el dashboard de Supabase. Las migraciones incrementales posteriores (variantes/toppings, banners, función de reseteo de datos demo) están versionadas en `supabase/migrations/`.
+El esquema base (tablas `productos`, `categorias`, `cafeterias`) se administra desde el dashboard de Supabase. Las migraciones incrementales posteriores (variantes/toppings, banners, función de reseteo de datos) están versionadas en `supabase/migrations/`.
 
 ## CI
 
