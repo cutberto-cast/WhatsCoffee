@@ -1,10 +1,10 @@
 # Cafecito — Menú Digital con Pedidos por WhatsApp
 
-[![CI](https://github.com/cutberto-cast/AdminCafe/actions/workflows/ci.yml/badge.svg)](https://github.com/cutberto-cast/AdminCafe/actions/workflows/ci.yml)
+[![CI](https://github.com/cutberto-cast/WhatsCoffee/actions/workflows/ci.yml/badge.svg)](https://github.com/cutberto-cast/WhatsCoffee/actions/workflows/ci.yml)
 
 Aplicación full-stack de menú digital para una cafetería: catálogo de productos con variantes/toppings/ingredientes personalizables, carrito, checkout que genera un mensaje de WhatsApp listo para enviar, y un panel de administración completo para gestionar el negocio sin tocar código.
 
-🔗 **Sitio en vivo:** https://admin-cafe-two.vercel.app
+🔗 **Sitio en vivo:** https://cafecito.shop
 
 ## Capturas
 
@@ -32,7 +32,6 @@ Aplicación full-stack de menú digital para una cafetería: catálogo de produc
 - Editor de variantes e ingredientes por producto
 - Configuración del negocio (nombre, WhatsApp, color de marca, datos bancarios)
 - Subida de imágenes a Supabase Storage
-- Botón de **restaurar datos** (función Postgres `reset_demo_data()`) para volver a un estado conocido
 - Bloqueo temporal tras 5 intentos fallidos de login (protección básica anti fuerza bruta)
 
 ## Arquitectura
@@ -47,9 +46,8 @@ Next.js (App Router)
 
 Supabase (Postgres + Auth + Storage)
  ├─ RLS: lectura pública en catálogo, escritura solo para usuarios "authenticated"
- ├─ Esquema preparado para multi-tenant (tabla cafeterias / cafeteria_id),
- │  aunque la app actual opera en modo single-tenant
- └─ Función reset_demo_data() para restaurar el seed inicial
+ └─ Esquema preparado para multi-tenant (tabla cafeterias / cafeteria_id),
+    aunque la app actual opera en modo single-tenant
 ```
 
 ## Correr el proyecto localmente
@@ -67,7 +65,7 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave pública (anon) del proyecto Supabase |
 
-El esquema base (tablas `productos`, `categorias`, `cafeterias`) se administra desde el dashboard de Supabase. Las migraciones incrementales posteriores (variantes/toppings, banners, función de reseteo de datos) están versionadas en `supabase/migrations/`.
+El esquema base (tablas `productos`, `categorias`, `cafeterias`) se administra desde el dashboard de Supabase. Las migraciones incrementales posteriores (variantes/toppings, banners) están versionadas en `supabase/migrations/`.
 
 ## CI
 
