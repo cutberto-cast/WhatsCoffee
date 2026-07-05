@@ -2,23 +2,41 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { estaAbiertoSegunReglas } from '@/lib/horario';
+import { SelectorHora } from '@/components/admin/SelectorHora';
+import type { HorarioRegla } from '@/types';
+
+const FORM_DEFAULTS = {
+    id: '',
+    nombre_negocio: '',
+    telefono_whatsapp: '',
+    logo_url: '',
+    color_primario: '#4A2C2A',
+    banco: '',
+    beneficiario: '',
+    clabe: '',
+    concepto_transferencia: 'Pago de pedido',
+    estado_negocio_modo: 'manual' as 'manual' | 'auto',
+    abierto_manual: true,
+    horario_reglas: [] as HorarioRegla[],
+};
+
+const DIAS_SEMANA = [
+    { valor: 1, etiqueta: 'Lun' },
+    { valor: 2, etiqueta: 'Mar' },
+    { valor: 3, etiqueta: 'Mié' },
+    { valor: 4, etiqueta: 'Jue' },
+    { valor: 5, etiqueta: 'Vie' },
+    { valor: 6, etiqueta: 'Sáb' },
+    { valor: 0, etiqueta: 'Dom' },
+];
 
 export default function AdminConfiguracionPage() {
     const [cargandoDatos, setCargandoDatos] = useState(true);
     const [guardando, setGuardando] = useState(false);
     const [exito, setExito] = useState(false);
 
-    const [form, setForm] = useState({
-        id: '',
-        nombre_negocio: '',
-        telefono_whatsapp: '',
-        logo_url: '',
-        color_primario: '#4A2C2A',
-        banco: '',
-        beneficiario: '',
-        clabe: '',
-        concepto_transferencia: 'Pago de pedido',
-    });
+    const [form, setForm] = useState({ ...FORM_DEFAULTS });
 
     const supabase = createClient();
 
@@ -26,7 +44,7 @@ export default function AdminConfiguracionPage() {
         setCargandoDatos(true);
         const { data } = await supabase.from('configuracion').select('*').limit(1).single();
         if (data) {
-            setForm(data);
+            setForm({ ...FORM_DEFAULTS, ...data });
         }
         setCargandoDatos(false);
     }, [supabase]);
@@ -70,6 +88,27 @@ export default function AdminConfiguracionPage() {
 
         setGuardando(false);
     };
+
+    // Handlers del horario automático
+    const reglas: HorarioRegla[] = form.horario_reglas || [];
+    const setReglas = (nuevas: HorarioRegla[]) => setForm({ ...form, horario_reglas: nuevas });
+    const agregarRegla = () =>
+        setReglas([...reglas, { dias: [1, 2, 3, 4, 5], desde: '08:00', hasta: '20:00' }]);
+    const eliminarRegla = (indice: number) => setReglas(reglas.filter((_, i) => i !== indice));
+    const actualizarRegla = (indice: number, cambios: Partial<HorarioRegla>) =>
+        setReglas(reglas.map((r, i) => (i === indice ? { ...r, ...cambios } : r)));
+    const toggleDia = (indice: number, dia: number) => {
+        const regla = reglas[indice];
+        if (!regla) return;
+        actualizarRegla(indice, {
+            dias: regla.dias.includes(dia)
+                ? regla.dias.filter((d) => d !== dia)
+                : [...regla.dias, dia],
+        });
+    };
+
+    const modoAuto = form.estado_negocio_modo === 'auto';
+    const previewAbierto = estaAbiertoSegunReglas(reglas);
 
     if (cargandoDatos) {
         return <div className="animate-pulse space-y-4"><div className="h-8 bg-gray-200 rounded w-48" /></div>;
@@ -239,6 +278,117 @@ export default function AdminConfiguracionPage() {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div className="border-t border-[var(--color-borde)] pt-6">
+                        <div className="mb-4">
+                            <h3 className="text-sm font-semibold text-[var(--color-texto-1)]">
+                                Estado del Negocio
+                            </h3>
+                            <p className="text-xs text-[var(--color-texto-3)] mt-1">
+                                Controla el indicador &quot;Abierto / Cerrado&quot; que ven los clientes junto al logo del menú.
+                            </p>
+                        </div>
+
+                        {/* Selector de modo */}
+                        <div className="inline-flex bg-[var(--color-base)] border border-[var(--color-borde)] rounded-xl p-1 mb-5">
+                            <button
+                                type="button"
+                                onClick={() => setForm({ ...form, estado_negocio_modo: 'manual' })}
+                                className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${!modoAuto ? 'bg-white shadow-sm text-[var(--color-texto-1)]' : 'text-[var(--color-texto-3)] hover:text-[var(--color-texto-2)]'}`}
+                            >
+                                Manual
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setForm({ ...form, estado_negocio_modo: 'auto' })}
+                                className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${modoAuto ? 'bg-white shadow-sm text-[var(--color-texto-1)]' : 'text-[var(--color-texto-3)] hover:text-[var(--color-texto-2)]'}`}
+                            >
+                                Automático (horario)
+                            </button>
+                        </div>
+
+                        {!modoAuto ? (
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setForm({ ...form, abierto_manual: !form.abierto_manual })}
+                                    className={`relative w-12 h-7 rounded-full transition-colors ${form.abierto_manual ? 'bg-green-500' : 'bg-gray-300'}`}
+                                    aria-label="Cambiar estado abierto/cerrado"
+                                >
+                                    <span
+                                        className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${form.abierto_manual ? 'left-6' : 'left-1'}`}
+                                    />
+                                </button>
+                                <span className={`text-sm font-semibold ${form.abierto_manual ? 'text-green-600' : 'text-gray-500'}`}>
+                                    {form.abierto_manual ? 'Abierto' : 'Cerrado'}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {reglas.length === 0 && (
+                                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                                        Sin horarios definidos el negocio se mostrará siempre como cerrado. Agrega al menos un horario.
+                                    </p>
+                                )}
+
+                                {reglas.map((regla, indice) => (
+                                    <div key={indice} className="border border-[var(--color-borde)] rounded-xl p-4 bg-[var(--color-base)]">
+                                        <div className="flex flex-wrap gap-1.5 mb-3">
+                                            {DIAS_SEMANA.map((dia) => (
+                                                <button
+                                                    key={dia.valor}
+                                                    type="button"
+                                                    onClick={() => toggleDia(indice, dia.valor)}
+                                                    className={`w-11 h-8 rounded-lg text-xs font-medium transition-all ${regla.dias.includes(dia.valor) ? 'bg-[var(--color-acento)] text-white shadow-sm' : 'bg-white border border-[var(--color-borde)] text-[var(--color-texto-3)] hover:border-[var(--color-texto-3)]'}`}
+                                                >
+                                                    {dia.etiqueta}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <label className="text-xs text-[var(--color-texto-3)]">De</label>
+                                            <SelectorHora
+                                                valor={regla.desde}
+                                                onCambiar={(hora) => actualizarRegla(indice, { desde: hora })}
+                                            />
+                                            <label className="text-xs text-[var(--color-texto-3)]">a</label>
+                                            <SelectorHora
+                                                valor={regla.hasta}
+                                                onCambiar={(hora) => actualizarRegla(indice, { hasta: hora })}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => eliminarRegla(indice)}
+                                                className="ml-auto text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-all"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                        {regla.desde && regla.hasta && regla.hasta < regla.desde && (
+                                            <p className="text-[11px] text-[var(--color-texto-3)] mt-2">
+                                                Este horario cruza la medianoche: cierra al día siguiente a las {regla.hasta}.
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    onClick={agregarRegla}
+                                    className="w-full text-[13px] font-medium text-[var(--color-acento)] border border-dashed border-[var(--color-borde)] rounded-xl px-4 py-2.5 hover:bg-[var(--color-base)] transition-all"
+                                >
+                                    + Agregar horario
+                                </button>
+
+                                <p className="text-xs text-[var(--color-texto-3)]">
+                                    Con este horario, ahora mismo el menú mostraría:{' '}
+                                    <strong className={previewAbierto ? 'text-green-600' : 'text-red-500'}>
+                                        {previewAbierto ? 'Abierto' : 'Cerrado'}
+                                    </strong>
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

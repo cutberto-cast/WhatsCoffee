@@ -91,12 +91,21 @@ export interface Promocion {
     fecha_fin: string;
 }
 
+export interface HorarioRegla {
+    dias: number[]; // 0=domingo ... 6=sábado (convención de Date.getDay)
+    desde: string; // "08:00"
+    hasta: string; // "20:00"
+}
+
 export interface Configuracion {
     id: string;
     nombre_negocio: string;
     telefono_whatsapp: string;
     logo_url: string;
     color_primario: string;
+    estado_negocio_modo?: 'manual' | 'auto';
+    abierto_manual?: boolean;
+    horario_reglas?: HorarioRegla[];
 }
 
 export interface CarritoItem {

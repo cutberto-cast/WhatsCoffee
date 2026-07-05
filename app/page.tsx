@@ -13,7 +13,8 @@ import { CarritoVista } from '@/components/carrito/CarritoVista';
 import { CheckoutVista } from '@/components/carrito/CheckoutVista';
 import { createClient } from '@/lib/supabase/client';
 import { useCarrito } from '@/stores/carritoStore';
-import type { Producto, Categoria, Banner, Topping, CarritoItem, MacroCategoria, Ingrediente } from '@/types';
+import { estaAbierto } from '@/lib/horario';
+import type { Producto, Categoria, Banner, Topping, CarritoItem, MacroCategoria, Ingrediente, Configuracion } from '@/types';
 import { MACRO_CATEGORIAS_CONFIG } from '@/types';
 import type { GrupoConVariantes, ProductoConToppings, ProductoConIngredientes } from '@/types/variantes';
 
@@ -44,6 +45,8 @@ export default function HomePage() {
   const [bannerProductos, setBannerProductos] = useState<Record<string, string[]>>({});
   const [bannerFiltroActivo, setBannerFiltroActivo] = useState<string | null>(null);
   const [nombreNegocio, setNombreNegocio] = useState('Nube Alta Cafe');
+  const [configNegocio, setConfigNegocio] = useState<Configuracion | null>(null);
+  const [minutoActual, setMinutoActual] = useState(0);
   const [cargando, setCargando] = useState(true);
 
   // Datos de variantes y toppings
@@ -70,7 +73,10 @@ export default function HomePage() {
     if (resCat.data) setCategorias(resCat.data);
     if (resProd.data) setProductos(resProd.data);
     if (resBan.data) setBanners(resBan.data);
-    if (resConf.data) setNombreNegocio(resConf.data.nombre_negocio);
+    if (resConf.data) {
+      setNombreNegocio(resConf.data.nombre_negocio);
+      setConfigNegocio(resConf.data);
+    }
     if (resBanProd.data) {
       const bp: Record<string, string[]> = {};
       (resBanProd.data || []).forEach((row: any) => {
@@ -112,12 +118,27 @@ export default function HomePage() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categorias' }, () => {
         cargarDatos();
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracion' }, () => {
+        cargarDatos();
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [cargarDatos, supabase]);
+
+  // Reevaluar el estado abierto/cerrado cada minuto (para el modo automático)
+  useEffect(() => {
+    const id = setInterval(() => setMinutoActual((m) => m + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const negocioAbierto = useMemo(
+    () => estaAbierto(configNegocio),
+    // minutoActual fuerza la reevaluación del horario con la hora actual
+    [configNegocio, minutoActual]
+  );
 
   // Helpers
   const getVariantesDeProducto = useCallback(
@@ -230,13 +251,24 @@ export default function HomePage() {
         <header className={`flex flex-col gap-2 relative bg-[var(--color-primario)] px-4 pt-3 shadow-xl -mx-4 sm:mx-0 sm:rounded-b-3xl sm:rounded-none rounded-b-3xl mb-5 ${vista === 'home' ? 'pb-4' : 'pb-3'}`}>
           <div className="flex items-center justify-between z-10 relative w-full">
             <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-wide" style={{ color: '#ffff', fontFamily: "'Georgia', 'Palatino Linotype', serif" }}>{nombreNegocio}</h1>
-            <div className="relative h-11 w-11 sm:h-12 sm:w-12 shrink-0 bg-white rounded-full shadow-sm overflow-hidden flex items-center justify-center">
-              <Image
-                src="/images/cafecito-header.png"
-                alt="Nube Alta Cafe"
-                fill
-                className="object-contain p-1.5"
-              />
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="animate-badge-in inline-flex items-center gap-1.5 bg-white/15 border border-white/25 text-white text-[11px] font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
+                <span className="relative flex h-1.5 w-1.5">
+                  {negocioAbierto && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                  )}
+                  <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${negocioAbierto ? 'bg-green-400' : 'bg-red-400'}`} />
+                </span>
+                {negocioAbierto ? 'Abierto' : 'Cerrado'}
+              </span>
+              <div className="relative h-11 w-11 sm:h-12 sm:w-12 shrink-0 bg-white rounded-full shadow-sm overflow-hidden flex items-center justify-center">
+                <Image
+                  src="/images/cafecito-header.png"
+                  alt="Nube Alta Cafe"
+                  fill
+                  className="object-contain p-1.5"
+                />
+              </div>
             </div>
           </div>
           {vista === 'home' && (
